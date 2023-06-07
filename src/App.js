@@ -137,8 +137,9 @@ const theme = createMuiTheme({
 function App(props) {
   const classes = useStyles();
 
-  const { isAuthenticated, user } = props.auth;
+  const { user } = props.auth;
 
+  let isAuthenticated = true
   const [logoutModal, setLogoutModal] = React.useState(false);
 
   const RedirectToDashboard = () => (
