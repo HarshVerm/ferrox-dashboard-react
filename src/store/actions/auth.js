@@ -7,6 +7,7 @@ import {
   SET_INTERNAL_SERVER_ERROR,
   SET_CONNECTION_REFUSED_ERROR,
 } from "./types/types";
+import { adminLogin } from "../../services/login";
 
 const URL = "http://localhost:8080";
 
@@ -51,24 +52,19 @@ export function setConnectionRefusedError() {
 export function userSignInRequest(userData) {
   return async (dispatch) => {
     try {
-      const res = await axios.post(`${URL}/login`, userData);
-      if (res.headers.authorization) {
-        // Expect "Bearer "
-        const token = res.headers.authorization.substring(
-          7,
-          res.headers.authorization.length
-        );
-        localStorage.setItem("token", token);
-        setAuthorizationToken(token);
-        // dispatch(setCurrentUser(jwtDecode(token)));
 
-        const avatarId = await axios.get(
-          `${URL}/users/avatar?username=${userData.username}`
-        );
+      const res = await adminLogin(userData.username, userData.password)
+
+      if (res.success) {
         dispatch(
-          setCurrentUser({ ...jwtDecode(token), avatarId: avatarId.data })
+          setCurrentUser({ user: res.user, avatarId: '' })
         );
+
+      } else {
+        dispatch(setInvalidCredentials(res.message));
       }
+
+
     } catch (error) {
       if (error.response) {
         if (error.response.status === 403) {
