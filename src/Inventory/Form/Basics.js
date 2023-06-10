@@ -41,7 +41,7 @@ export default function Basics(props) {
   const handleChangeStock = (event) => {
     event.persist();
     setStock((prevState) => {
-      return { ...prevState, [event.target.name]: event.target.value };
+      return { ...prevState, [event.target.name]: Number(event.target.value) };
     });
   };
 
