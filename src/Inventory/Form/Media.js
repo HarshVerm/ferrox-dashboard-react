@@ -32,12 +32,11 @@ export default function Media(props) {
     event.persist();
     const file = event.target.files[0];
     const filePromise = fileToBase64(file);
-    console.log(file.name)
     const extension = file.name.split(".")[1]
 
     Promise.resolve(filePromise).then((base64Images) => {
       setImages((prevState) => {
-        return { ...prevState, [event.target.name]: {data:base64Images.result,} };
+        return { ...prevState, [event.target.name]: {data:base64Images.result,extension} };
       });
     });
   };
@@ -47,8 +46,6 @@ export default function Media(props) {
       return { ...prevState, [key]: {data:null,extension:null} };
     });
   }
-
-  console.log(images);
 
   return (
     <Grid container className={classes.grid} spacing={3}>
