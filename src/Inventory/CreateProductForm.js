@@ -97,7 +97,7 @@ export default function CreateProductForm() {
             {activeStep === steps.length - 1 ?
               (
                 <Button variant="contained" color="primary" className={classes.button}>
-                  Finish
+                  Add
                 </Button>
               ) : (
                 <Button variant="contained" color="primary" className={classes.button} onClick={handleNext}>
