@@ -12,9 +12,10 @@ export default async function addNewProducts(product) {
     const productId = uuidv4()
 
     const imageUrls = selectedImages.map(async (set, _set_index) => {
-        const data = readFileSync(set)
+        //NOTE: in case of file path is provided, uncomment this and pass data
+        // const data = readFileSync(set)
         const extension = set?.split(".")[1]
-        return imageUploader(data, `${productId}-${_set_index + 1}`, extension)
+        return imageUploader(set, `${productId}-${_set_index + 1}`, extension)
     })
 
     return Promise.all([...imageUrls]).then(async (images) => {
