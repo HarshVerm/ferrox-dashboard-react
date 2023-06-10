@@ -9,7 +9,7 @@ import {
   StepLabel,
   Grid,
 } from "@material-ui/core";
-import {  enqueueSnackbar } from 'notistack'
+import { enqueueSnackbar } from 'notistack'
 
 import Basics from "./Form/Basics";
 import Media from "./Form/Media";
@@ -54,7 +54,7 @@ export default function CreateProductForm(props) {
     highlights: "",
     currency: "INR",
     price: 1,
-    returnAndExchange:false
+    returnAndExchange: false
   });
 
   const [images, setImages] = useState({
@@ -137,7 +137,7 @@ export default function CreateProductForm(props) {
   const steps = getSteps();
 
   const handleNext = () => {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
@@ -148,38 +148,40 @@ export default function CreateProductForm(props) {
     setActiveStep(0);
   };
 
-  const handleAddProduct = async() => {
-  
-    const filterImages = Object.keys(images).map(key=> {
-      if(images[key].data !== null){
-        return images[key] 
+  const handleAddProduct = async () => {
+
+    const filterImages = Object.keys(images).map(key => {
+      if (images[key].data !== null) {
+        return images[key]
       }
-       return false
-    }).filter(image=> image)
-    
-    if(filterImages.length > 2){
+      return false
+    }).filter(image => image)
+
+    if (filterImages.length > 2) {
       let data = {
-          "images": filterImages,
-          "categoryId": product.category,
-          "category": product.category,
-          "collection": product.collection,
-          "title": product.title,
-          "priceTag": { "currency": product.currency, "value": product.price },
-          "description": product.description,
-          "inStock":stock,
-          "highlights": product.highlights,
-          "returnAndExchange": {
-            "accepted": product.returnAndExchange,
-            "message": "Hassle-free returns and exchanges.",
-            "window": "30 days",
-            "windowMessage": "Return or exchange within 30 days of purchase."
-          }
+        "images": filterImages,
+        "categoryId": product.category,
+        "category": product.category,
+        "collection": product.collection,
+        "title": product.title,
+        "priceTag": { "currency": product.currency, "value": product.price },
+        "description": product.description,
+        "inStock": stock,
+        "highlights": product.highlights,
+        "returnAndExchange": {
+          "accepted": product.returnAndExchange,
+          "message": "Hassle-free returns and exchanges.",
+          "window": "30 days",
+          "windowMessage": "Return or exchange within 30 days of purchase."
         }
-        const response = await addNewProducts(data)
-        console.log(response)
-    }else{
-      enqueueSnackbar('Add atleast 3 images',{
-        variant:"error"
+      }
+      const response = await addNewProducts(data)
+      enqueueSnackbar(response.message, {
+        variant: response.success ? 'success' : 'error'
+      })
+    } else {
+      enqueueSnackbar('Add atleast 3 images', {
+        variant: "error"
       })
     }
   };
