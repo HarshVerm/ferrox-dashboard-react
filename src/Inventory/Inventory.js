@@ -2,33 +2,29 @@ import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { fetchProducts } from "../store/actions/products";
-
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
-
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
-
 import SearchIcon from "@material-ui/icons/Search";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
 import ViewHeadlineIcon from "@material-ui/icons/ViewHeadline";
 import RefreshIcon from "@material-ui/icons/Refresh";
-
 import CreateProduct from "./CreateProduct";
 import InventoryItem from "./InventoryItem";
 import EmptyInventory from "./EmptyInventory";
-import SearchModal from "./SearchModal";
+import AddCategory from "./AddCategory";
 import ProductModal from "./ProductModal";
 import CreateProductForm from "./CreateProductForm";
 import PageTitle from "./../Common/PageTitle";
+import AddCollection from "./AddCollection";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -103,7 +99,8 @@ const Inventory = (props) => {
     description: "Description",
   });
 
-  const [searchModal, setSearchModal] = React.useState(false);
+  const [addCategoryModal, setAddCategoryModal] = React.useState(false);
+  const [addCollectionModal, setAddCollectionModal] = React.useState(false);
   const [createProductModal, setCreateProductModal] = React.useState(false);
   const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
 
@@ -120,12 +117,19 @@ const Inventory = (props) => {
     setCreateProductModal(false);
   };
 
-  const openSearchModal = () => {
-    setSearchModal(true);
+  const openAddCategoryModal = () => {
+    setAddCategoryModal(true);
   };
 
-  const closeSearchModal = () => {
-    setSearchModal(false);
+  const closeAddCategory = () => {
+    setAddCategoryModal(false);
+  };
+  const openAddCollectionModal = () => {
+    setAddCollectionModal(true);
+  };
+
+  const closeAddCollection = () => {
+    setAddCollectionModal(false);
   };
 
   const handleOpen = (product) => {
@@ -160,7 +164,11 @@ const Inventory = (props) => {
               </IconButton>
             </div>
             <div className={classes.action}>
-              <CreateProduct createProduct={openCreateNewProductModal} />
+              <CreateProduct
+                createProduct={openCreateNewProductModal}
+                addCategory={openAddCategoryModal}
+                addCollection={openAddCollectionModal}
+              />
             </div>
           </div>
         </Paper>
@@ -195,8 +203,7 @@ const Inventory = (props) => {
         <Fab
           color="primary"
           className={classes.fab}
-          aria-label="search"
-          onClick={openSearchModal}
+          onClick={openAddCategoryModal}
         >
           <SearchIcon />
         </Fab>
@@ -221,12 +228,12 @@ const Inventory = (props) => {
         </Fade>
       </Modal>
 
-      {/* Search Modal */}
+      {/* Collection Modal */}
       <Modal
         disableAutoFocus={true}
         className={classes.modal}
-        open={searchModal}
-        onClose={closeSearchModal}
+        open={addCollectionModal}
+        onClose={closeAddCollection}
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
@@ -234,9 +241,28 @@ const Inventory = (props) => {
         closeAfterTransition
         disableBackdropClick
       >
-        <Fade in={searchModal}>
+        <Fade in={addCollectionModal}>
           <div className={classes.paper}>
-            <SearchModal onClose={closeSearchModal} />
+            <AddCollection onClose={closeAddCollection} />
+          </div>
+        </Fade>
+      </Modal>
+      {/* Category Modal */}
+      <Modal
+        disableAutoFocus={true}
+        className={classes.modal}
+        open={addCategoryModal}
+        onClose={closeAddCategory}
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+        closeAfterTransition
+        disableBackdropClick
+      >
+        <Fade in={addCategoryModal}>
+          <div className={classes.paper}>
+            <AddCategory onClose={closeAddCategory} />
           </div>
         </Fade>
       </Modal>
@@ -256,7 +282,7 @@ const Inventory = (props) => {
       >
         <Fade in={createProductModal}>
           <div className={classes.paper}>
-            <CreateProductForm  handleClose = {closeCreateNewProductModal}/>
+            <CreateProductForm handleClose={closeCreateNewProductModal} />
           </div>
         </Fade>
       </Modal>

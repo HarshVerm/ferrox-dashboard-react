@@ -212,7 +212,7 @@ function App(props) {
                     />
                     <Tab
                       label="Products"
-                      value="/dashboard/inventory"
+                      value="/dashboard/products"
                       component={Link}
                       to="/dashboard/products"
                       disableRipple
@@ -235,7 +235,7 @@ function App(props) {
                     exact
                     render={() => <div>Inventory Wizard</div>}
                   />
-                  <Route path="/dashboard/inventory" component={Inventory} />
+                  <Route path="/dashboard/products" component={Inventory} />
                   <Route path="/dashboard/board" component={Board} />
                   <PrivateRoute path="/dashboard/orders"   authed={isAuthenticated} component={Orders} />
                   <PrivateRoute

@@ -30,11 +30,19 @@ export default function CreateProduct(props) {
         variant="outlined"
         color="primary"
         className={classes.button}
-        onClick={props.createProduct}
         style={{ marginRight: "1em" }}
+        onClick ={props.addCategory}
       >
-        Import Product
-        <PublishIcon className={classes.rightIcon}>Import Product</PublishIcon>
+        Add Category
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        className={classes.button}
+        style={{ marginRight: "1em" }}
+        onClick ={props.addCollection}
+      >
+        Add Collection
       </Button>
       <Button
         variant="contained"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   makeStyles,
   Grid,
@@ -11,6 +11,8 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@material-ui/core";
+import { getAllCategories } from "../../services/getCategories";
+import { getAllCollections } from "../../services/getCollections";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -27,9 +29,8 @@ export default function Basics(props) {
   const { setProduct, product, setStock, stock } = props;
   const inputLabel = React.useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
-  React.useEffect(() => {
-    setLabelWidth(inputLabel.current.offsetWidth);
-  }, []);
+  const [collections,setCollections] = useState([])
+  const [categories,setCategories] = useState([])
 
   const handleChangeProductDetails = (event) => {
     event.persist();
@@ -52,6 +53,19 @@ export default function Basics(props) {
       return { ...prevState,returnAndExchange : event.target.checked };
     });
   }
+
+  const getList = async()=>{
+    const listOfCategory = await getAllCategories()
+    setCategories(listOfCategory.categories)
+    const listOfCollections = await getAllCollections()
+    setCollections(listOfCollections.collections)
+  }
+
+  React.useEffect(async() => {
+    setLabelWidth(inputLabel.current.offsetWidth);
+    getList()
+  }, []);
+
   return (
     <Grid container className={classes.grid} spacing={4}>
       <Grid item className={classes.box} xs={6} sm={6} md={6} lg={6}>
@@ -122,11 +136,7 @@ export default function Basics(props) {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                <MenuItem value={"Clothes"}>Clothes</MenuItem>
-                <MenuItem value={"Shoes"}>Shoes</MenuItem>
-                <MenuItem value={"Bag"}>Bag</MenuItem>
-                <MenuItem value={"Watch"}>Watch</MenuItem>
-                <MenuItem value={"Misc"}>Misc</MenuItem>
+               {categories.map(category=><MenuItem key={category.title} value={category.title}>{category.title}</MenuItem>)}
               </Select>
             </FormControl>
           </Grid>
@@ -152,11 +162,7 @@ export default function Basics(props) {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                <MenuItem value={"Clothes"}>Clothes</MenuItem>
-                <MenuItem value={"Shoes"}>Shoes</MenuItem>
-                <MenuItem value={"Bag"}>Bag</MenuItem>
-                <MenuItem value={"Watch"}>Watch</MenuItem>
-                <MenuItem value={"Misc"}>Misc</MenuItem>
+               {collections.map(collection=><MenuItem key={collection.title} value={collection.title}>{collection.title}</MenuItem>)}
               </Select>
             </FormControl>
           </Grid>

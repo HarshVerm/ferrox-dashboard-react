@@ -3,8 +3,6 @@ import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from './Card';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-
 import Orders from '../Common/img/orders.png';
 import Board from '../Common/img/board.png';
 import NewProduct from '../Common/img/new-product.png';
