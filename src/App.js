@@ -3,6 +3,7 @@ import { Switch, Route, Link, BrowserRouter, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { userSignOutRequest } from "./store/actions/auth";
+import { SnackbarProvider } from 'notistack'
 
 import { makeStyles, createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
@@ -177,6 +178,7 @@ function App(props) {
 
   return (
     <ThemeProvider theme={theme}>
+      <SnackbarProvider autoHideDuration={3000} />
       <BrowserRouter>
         <div className="App">
           <Route path="/" exact component={Login} />
@@ -235,7 +237,7 @@ function App(props) {
                   />
                   <Route path="/dashboard/inventory" component={Inventory} />
                   <Route path="/dashboard/board" component={Board} />
-                  <Route path="/dashboard/orders" component={Orders} />
+                  <PrivateRoute path="/dashboard/orders"   authed={isAuthenticated} component={Orders} />
                   <PrivateRoute
                     path="/dashboard/home"
                     authed={isAuthenticated}

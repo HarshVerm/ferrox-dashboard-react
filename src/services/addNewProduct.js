@@ -14,13 +14,13 @@ export default async function addNewProducts(product) {
     const imageUrls = selectedImages.map(async (set, _set_index) => {
         //NOTE: in case of file path is provided, uncomment this and pass data
         // const data = readFileSync(set)
-        const extension = set?.split(".")[1]
-        return imageUploader(set, `${productId}-${_set_index + 1}`, extension)
+        
+        return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension)
     })
 
     return Promise.all([...imageUrls]).then(async (images) => {
         const updatedProduct = { ...product, images: images, productPrimaryImage: images[0] || '' }
-        const productRef = doc(fireDb, "products", updatedProduct?.productId);
+        const productRef = doc(fireDb, "products", updatedProduct.productId);
         await setDoc(productRef, updatedProduct);
     }).finally(() => {
         return { success: true, message: 'Product added successfully. ' }

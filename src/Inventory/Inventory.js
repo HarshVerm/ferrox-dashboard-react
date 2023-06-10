@@ -246,7 +246,7 @@ const Inventory = (props) => {
         disableAutoFocus={true}
         className={classes.modal}
         open={createProductModal}
-        onClose={closeSearchModal}
+        onClose={closeCreateNewProductModal}
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
@@ -256,7 +256,7 @@ const Inventory = (props) => {
       >
         <Fade in={createProductModal}>
           <div className={classes.paper}>
-            <CreateProductForm />
+            <CreateProductForm  handleClose = {closeCreateNewProductModal}/>
           </div>
         </Fade>
       </Modal>

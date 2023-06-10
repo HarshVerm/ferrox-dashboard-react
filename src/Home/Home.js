@@ -37,7 +37,7 @@ function Home(props) {
             title="Orders"
             button="Manage Orders"
             description="View and update orders. Find orders by email or order ID."
-            route="/orders"
+            route="/dashboard/orders"
             image={Orders}
           />
         </Grid>
@@ -47,7 +47,7 @@ function Home(props) {
             title="Products"
             button="Update Product Information"
             description="Update products name, type, description, etc."
-            route="/inventory"
+            route="/dashboard/inventory"
             image={ProductInformation}
           />
         </Grid>

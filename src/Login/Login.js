@@ -36,7 +36,9 @@ function Login(props) {
           <LoginCard userSignInRequest={userSignInRequest} />
         </Grid>
         <Grid item xs={7}>
-          <img className={classes.image} src={Welcome} draggable="false" />
+          <img className={classes.image} src={Welcome} draggable="false" s
+          style={{mixBlendMode:"color-burn"}}
+          />
         </Grid>
       </Grid>
     </Container>
