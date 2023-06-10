@@ -4,5 +4,7 @@ export const Models = {
     USERS: 'users',
     ADDRESSES: 'addresses',
     ORDERS: 'orders',
-    ADMIN: 'admin'
+    ADMIN: 'admin',
+    CATEGORIES: 'categories',
+    COLLECTIONS: 'collections'
 }

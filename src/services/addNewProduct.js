@@ -21,7 +21,6 @@ export default async function addNewProducts(product) {
 
     return Promise.all([...imageUrls]).then(async (images) => {
         const updatedProduct = { ...product, productId: productId, images: images, productPrimaryImage: images[0] || '' }
-        console.log(updatedProduct)
         const productRef = doc(fireDb, "products", productId);
         await setDoc(productRef, updatedProduct);
     }).then(() => {
