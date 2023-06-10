@@ -201,22 +201,6 @@ function App(props) {
                       className={classes.tab}
                     />
                     <Tab
-                      label="Team"
-                      value="/dashboard/team"
-                      component={Link}
-                      to="/dashboard/team"
-                      disableRipple
-                      className={classes.tab}
-                    />
-                    <Tab
-                      label="Board"
-                      value="/dashboard/board"
-                      component={Link}
-                      to="/dashboard/board"
-                      disableRipple
-                      className={classes.tab}
-                    />
-                    <Tab
                       label="Orders"
                       value="/dashboard/orders"
                       component={Link}
@@ -225,10 +209,10 @@ function App(props) {
                       className={classes.tab}
                     />
                     <Tab
-                      label="Inventory"
+                      label="Products"
                       value="/dashboard/inventory"
                       component={Link}
-                      to="/dashboard/inventory"
+                      to="/dashboard/products"
                       disableRipple
                       className={classes.tab}
                     />

@@ -15,7 +15,8 @@ import ProductStock from '../Common/img/product-stock.png';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    marginBottom: '5em'
+    marginBottom: '5em',
+    marginTop:"2em"
   },
   title: {
     fontFamily: 'ApercuMedium',
@@ -29,9 +30,8 @@ function Home(props) {
   const classes = useStyles();
 
   return (
-    <Container className={classes.container} maxWidth="lg">
-      <Typography variant="h6" className={classes.title} gutterBottom>Dashboards</Typography>
-      <Grid container spacing={2}>
+    <Container className={classes.container} maxWidth="lg" >
+      <Grid container spacing={2} >
         <Grid item xs={3}>
           <Card
             title="Orders"
@@ -41,50 +41,16 @@ function Home(props) {
             image={Orders}
           />
         </Grid>
+       
         <Grid item xs={3}>
           <Card
-            title="Board"
-            button="View Board"
-            description="Add, manage, and share information to your team."
-            route="/board"
-            image={Board}
-          />
-        </Grid>
-
-      </Grid>
-      <Typography variant="h6" className={classes.title} gutterBottom>Inventory</Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Card
-            title="New Product Listing"
-            button="Add New Product"
-            description="List a new product to your online store."
-            route="/inventory"
-            image={NewProduct}
-          />
-        </Grid>
-        <Grid item xs={3}>
-          <Card
-            title="Product Stock"
-            button="Update Stock"
-            description="Increase or decrease product availability."
-            route="/inventory"
-            image={ProductStock}
-          />
-        </Grid>
-        <Grid item xs={3}>
-          <Card
-            title="Product Information"
+            title="Products"
             button="Update Product Information"
             description="Update products name, type, description, etc."
             route="/inventory"
             image={ProductInformation}
           />
         </Grid>
-      </Grid>
-
-      <Typography variant="h6" className={classes.title} gutterBottom>Account</Typography>
-      <Grid container spacing={2}>
         <Grid item xs={3}>
           <Card
             title="User Accounts"
@@ -94,16 +60,9 @@ function Home(props) {
             image={ManageAccounts}
           />
         </Grid>
-        <Grid item xs={3}>
-          <Card
-            title="Change Password"
-            button="Change Password"
-            description="Change the password to your account."
-            route="/settings"
-            image={ChangePassword}
-          />
-        </Grid>
+
       </Grid>
+   
     </Container>
   );
 }
