@@ -121,8 +121,6 @@ export default function CreateProductForm(props) {
         );
       case 1:
         return <Media images={images} setImages={setImages} />;
-      case 2:
-        return "This is the bit I really care about!";
       default:
         return "Uknown stepIndex";
     }

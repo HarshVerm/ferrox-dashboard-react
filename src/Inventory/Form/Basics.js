@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   makeStyles,
   Grid,
@@ -54,14 +54,14 @@ export default function Basics(props) {
     });
   }
 
-  const getList = async()=>{
+  const getList = useCallback(async()=>{
     const listOfCategory = await getAllCategories()
     setCategories(listOfCategory.categories)
     const listOfCollections = await getAllCollections()
     setCollections(listOfCollections.collections)
-  }
+  },[])
 
-  React.useEffect(async() => {
+  React.useEffect(() => {
     setLabelWidth(inputLabel.current.offsetWidth);
     getList()
   }, []);
