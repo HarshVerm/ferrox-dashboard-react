@@ -154,9 +154,10 @@ export default function CreateProductForm(props) {
     if (filterImages.length > 2) {
       let data = {
         images: filterImages,
-        categoryId: product.category,
+        categoryId: product.category.toLowerCase().split(" ").join("-"),
         category: product.category,
         collection: product.collection,
+        collectionId: product.collection.toLowerCase().split(" ").join("-"),
         title: product.title,
         priceTag: { currency: product.currency, value: product.price },
         description: product.description,
