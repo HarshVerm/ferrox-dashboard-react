@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -44,47 +44,63 @@ const useStyles = makeStyles(theme => ({
 export default function AddCollection(props) {
   const classes = useStyles();
 
-  const [collection,setCollection] = useState('')
+  const [collectionData, setCollectionData] = useState({ title: "", description: '', link: '' })
 
-  const handleChange = (event)=>{
-    if(event.target.value.length < 50){
-      setCollection(event.target.value)
+  const handleChangeTitle = (event) => {
+    if (event.target.value.length <= 50) {
+      setCollectionData({ ...collectionData, title: event.target.value })
     }
-  } 
+  }
 
-  const addCollection = async()=>{
+  const handleChangeDescription = (event) => {
+    if (event.target.value.length <= 100) {
+      setCollectionData({ ...collectionData, description: event.target.value })
+    }
+  }
 
-    if(collection.length > 2 ){
-      const response = await addNewCollection(collection)
+  const addCollection = async () => {
+
+    if (collectionData.title.length > 2) {
+      const response = await addNewCollection({ ...collectionData, link: collectionData.link.split(" ").join("-") })
       enqueueSnackbar(response.message, {
         variant: response.success ? 'success' : 'error'
       })
-    }else{
+    } else {
       enqueueSnackbar('Collection length should be greater or equal 3 character', {
         variant: "error"
       })
     }
   }
- 
+
 
   return (
-    <div style={{maxWidth:"80vw", minWidth:"400px"}}>
+    <div style={{ maxWidth: "80vw", minWidth: "400px" }}>
       <Typography variant="h5" className={classes.title}>Add New Collection</Typography>
       <TextField
-            id="outlined-name"
-            label="Collection"
-            margin="normal"
-            variant="outlined"
-            fullWidth
-            value={collection}
-            name="collection"
-            onChange={handleChange}
-          />
+        id="collection-title"
+        label="Collection Title"
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        value={collectionData.title}
+        name="collection-title"
+        onChange={handleChangeTitle}
+      />
+      <TextField
+        id="collection-description"
+        label="Collection Description"
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        value={collectionData.description}
+        name="collection-description"
+        onChange={handleChangeDescription}
+      />
       <Box display="flex" justifyContent="flex-end" style={{ marginTop: '2em' }}>
         <Button vsize="small" color="primary" className={classes.button} style={{ marginRight: 10 }} onClick={props.onClose} >
           Cancel
         </Button>
-        <Button variant="contained" color="primary" className={classes.button} onClick = {addCollection}>
+        <Button variant="contained" color="primary" className={classes.button} onClick={addCollection}>
           Add
         </Button>
       </Box>

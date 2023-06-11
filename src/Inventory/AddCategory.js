@@ -47,47 +47,67 @@ const useStyles = makeStyles(theme => ({
 export default function AddCategory(props) {
   const classes = useStyles();
 
-  const [category,setCategory] = useState('')
+  const [categoryData, setCategoryData] = useState({
+    title: '',
+    description: '',
+    link: ''
+  })
 
-  const handleChangeCategoryTitle = (event)=>{
-    if(event.target.value.length < 50){
-      setCategory(event.target.value)
+  const handleChangeCategoryTitle = (event) => {
+    if (event.target.value.length < 50) {
+      setCategoryData({ ...categoryData, title: event.target.value })
     }
-  } 
+  }
 
-  const addCategory = async()=>{
+  const handleChangeCategoryDescription = (event) => {
+    if (event.target.value.length < 100) {
+      setCategoryData({ ...categoryData, description: event.target.value })
+    }
+  }
 
-    if(category.length > 2 ){
-      const response = await addNewCategory(category)
+  const addCategory = async () => {
+
+    if (categoryData.title.length > 2) {
+      const response = await addNewCategory({ ...categoryData, link: categoryData.link.split(" ").join('-') })
       enqueueSnackbar(response.message, {
         variant: response.success ? 'success' : 'error'
       })
-    }else{
+    } else {
       enqueueSnackbar('Category length should be greater or equal 3 character', {
         variant: "error"
       })
     }
   }
- 
+
 
   return (
-    <div style={{maxWidth:"80vw", minWidth:"400px"}}>
+    <div style={{ maxWidth: "80vw", minWidth: "400px" }}>
       <Typography variant="h5" className={classes.title}>Add New Category</Typography>
       <TextField
-            id="outlined-name"
-            label="Category"
-            margin="normal"
-            variant="outlined"
-            fullWidth
-            value={category}
-            name="category"
-            onChange={handleChangeCategoryTitle}
-          />
+        id="outlined-name"
+        label="Category"
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        value={categoryData.title}
+        name="category"
+        onChange={handleChangeCategoryTitle}
+      />
+      <TextField
+        id="outlined-name"
+        label="Category description"
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        value={categoryData.description}
+        name="category"
+        onChange={handleChangeCategoryDescription}
+      />
       <Box display="flex" justifyContent="flex-end" style={{ marginTop: '2em' }}>
         <Button vsize="small" color="primary" className={classes.button} style={{ marginRight: 10 }} onClick={props.onClose} >
           Cancel
         </Button>
-        <Button variant="contained" color="primary" className={classes.button} onClick = {addCategory}>
+        <Button variant="contained" color="primary" className={classes.button} onClick={addCategory}>
           Add
         </Button>
       </Box>
