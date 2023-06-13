@@ -45,7 +45,7 @@ function Home(props) {
             title="Products"
             button="Update Product Information"
             description="Update products name, type, description, etc."
-            route="/dashboard/inventory"
+            route="/dashboard/products"
             image={ProductInformation}
           />
         </Grid>

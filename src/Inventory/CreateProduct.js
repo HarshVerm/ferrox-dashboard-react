@@ -27,24 +27,6 @@ export default function CreateProduct(props) {
   return (
     <React.Fragment>
       <Button
-        variant="outlined"
-        color="primary"
-        className={classes.button}
-        style={{ marginRight: "1em" }}
-        onClick ={props.addCategory}
-      >
-        Add Category
-      </Button>
-      <Button
-        variant="outlined"
-        color="primary"
-        className={classes.button}
-        style={{ marginRight: "1em" }}
-        onClick ={props.addCollection}
-      >
-        Add Collection
-      </Button>
-      <Button
         variant="contained"
         color="primary"
         className={classes.button}

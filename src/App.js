@@ -35,6 +35,8 @@ import getAvatar from "./Common/AnimalAvatars";
 
 import "./App.css";
 import MonkeyAvatar from "../src/Common/img/avatars/monkey.png";
+import Category from "./Inventory/Category";
+import Collections from "./Inventory/Collections";
 
 const useStyles = makeStyles({
   root: {
@@ -219,6 +221,22 @@ function App(props) {
                       className={classes.tab}
                     />
                     <Tab
+                      label="Categories"
+                      value="/dashboard/category"
+                      component={Link}
+                      to="/dashboard/category"
+                      disableRipple
+                      className={classes.tab}
+                    />
+                    <Tab
+                      label="Collections"
+                      value="/dashboard/collection"
+                      component={Link}
+                      to="/dashboard/collection"
+                      disableRipple
+                      className={classes.tab}
+                    />
+                    <Tab
                       label="Settings"
                       value="/dashboard/settings"
                       component={Link}
@@ -236,14 +254,16 @@ function App(props) {
                     render={() => <div>Inventory Wizard</div>}
                   />
                   <Route path="/dashboard/products" component={Inventory} />
+                  <Route path="/dashboard/category" component={Category} />
+                  <Route path="/dashboard/collection" component={Collections} />
                   <Route path="/dashboard/board" component={Board} />
                   <PrivateRoute path="/dashboard/orders"   authed={isAuthenticated} component={Orders} />
-                  <PrivateRoute
+                  <Route
                     path="/dashboard/home"
                     authed={isAuthenticated}
                     component={Home}
                   />
-                  <PrivateRoute
+                  <Route
                     path="/dashboard/team"
                     authed={isAuthenticated}
                     component={Team}

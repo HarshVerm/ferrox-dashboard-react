@@ -25,6 +25,7 @@ import ProductModal from "./ProductModal";
 import CreateProductForm from "./CreateProductForm";
 import PageTitle from "./../Common/PageTitle";
 import AddCollection from "./AddCollection";
+import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -74,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(1),
   },
+  button2: {
+    boxShadow: "none",
+    fontFamily: "ApercuMedium",
+  },
   toolbar: {
     // boxShadow: '0 0 1px 0 rgba(0,0,0,.22)',
     boxShadow: "0 0 11px #eaf0f6",
@@ -88,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Inventory = (props) => {
+const Collection = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -99,7 +104,7 @@ const Inventory = (props) => {
     description: "Description",
   });
 
-  const [createProductModal, setCreateProductModal] = React.useState(false);
+  const [addCollectionModal, setAddCollectionModal] = React.useState(false);
   const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
 
   React.useEffect(() => {
@@ -107,12 +112,12 @@ const Inventory = (props) => {
     setLastUpdatedTime(`${new Date().toLocaleString()}`);
   }, []);
 
-  const openCreateNewProductModal = () => {
-    setCreateProductModal(true);
+  const openAddCollectionModal = () => {
+    setAddCollectionModal(true);
   };
 
-  const closeCreateNewProductModal = () => {
-    setCreateProductModal(false);
+  const closeAddCollection = () => {
+    setAddCollectionModal(false);
   };
 
   const handleOpen = (product) => {
@@ -122,11 +127,6 @@ const Inventory = (props) => {
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const transitionDuration = {
-    enter: theme.transitions.duration.enteringScreen,
-    exit: theme.transitions.duration.leavingScreen,
   };
 
   return (
@@ -147,7 +147,15 @@ const Inventory = (props) => {
               </IconButton>
             </div>
             <div className={classes.action}>
-              <CreateProduct createProduct={openCreateNewProductModal}/>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.button}
+                style={{ marginRight: "1em" }}
+                onClick={openAddCollectionModal}
+              >
+                Add Collection
+              </Button>
             </div>
           </div>
         </Paper>
@@ -191,12 +199,12 @@ const Inventory = (props) => {
         </Fade>
       </Modal>
 
-      {/* Create Product Modal */}
+      {/* Collection Modal */}
       <Modal
         disableAutoFocus={true}
         className={classes.modal}
-        open={createProductModal}
-        onClose={closeCreateNewProductModal}
+        open={addCollectionModal}
+        onClose={closeAddCollection}
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
@@ -204,21 +212,23 @@ const Inventory = (props) => {
         closeAfterTransition
         disableBackdropClick
       >
-        <Fade in={createProductModal}>
+        <Fade in={addCollectionModal}>
           <div className={classes.paper}>
-            <CreateProductForm handleClose={closeCreateNewProductModal} />
+            <AddCollection onClose={closeAddCollection} />
           </div>
         </Fade>
       </Modal>
+
+     
     </React.Fragment>
   );
 };
 
-Inventory.defaultProps = {
+Collection.defaultProps = {
   products: [],
 };
 
-Inventory.propTypes = {
+Collection.propTypes = {
   products: PropTypes.array.isRequired,
 };
 
@@ -228,4 +238,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(Inventory);
+export default connect(mapStateToProps, null)(Collection);

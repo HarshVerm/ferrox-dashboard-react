@@ -25,6 +25,7 @@ import ProductModal from "./ProductModal";
 import CreateProductForm from "./CreateProductForm";
 import PageTitle from "./../Common/PageTitle";
 import AddCollection from "./AddCollection";
+import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -74,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(1),
   },
+  button2: {
+    boxShadow: "none",
+    fontFamily: "ApercuMedium",
+  },
   toolbar: {
     // boxShadow: '0 0 1px 0 rgba(0,0,0,.22)',
     boxShadow: "0 0 11px #eaf0f6",
@@ -88,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Inventory = (props) => {
+const Category = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -99,7 +104,7 @@ const Inventory = (props) => {
     description: "Description",
   });
 
-  const [createProductModal, setCreateProductModal] = React.useState(false);
+  const [addCategoryModal, setAddCategoryModal] = React.useState(false);
   const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
 
   React.useEffect(() => {
@@ -107,12 +112,12 @@ const Inventory = (props) => {
     setLastUpdatedTime(`${new Date().toLocaleString()}`);
   }, []);
 
-  const openCreateNewProductModal = () => {
-    setCreateProductModal(true);
+  const openAddCategoryModal = () => {
+    setAddCategoryModal(true);
   };
 
-  const closeCreateNewProductModal = () => {
-    setCreateProductModal(false);
+  const closeAddCategory = () => {
+    setAddCategoryModal(false);
   };
 
   const handleOpen = (product) => {
@@ -147,7 +152,15 @@ const Inventory = (props) => {
               </IconButton>
             </div>
             <div className={classes.action}>
-              <CreateProduct createProduct={openCreateNewProductModal}/>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.button2}
+                style={{ marginRight: "1em" }}
+                onClick={openAddCategoryModal}
+              >
+                Add Category
+              </Button>
             </div>
           </div>
         </Paper>
@@ -171,6 +184,22 @@ const Inventory = (props) => {
         )}
       </Container>
 
+      <Zoom
+        timeout={transitionDuration}
+        style={{
+          transitionDelay: `${transitionDuration.exit}ms`,
+        }}
+        in={true}
+        unmountOnExit
+      >
+        <Fab
+          color="primary"
+          className={classes.fab}
+          onClick={openAddCategoryModal}
+        >
+          <SearchIcon />
+        </Fab>
+      </Zoom>
 
       <Modal
         disableAutoFocus={true}
@@ -191,12 +220,12 @@ const Inventory = (props) => {
         </Fade>
       </Modal>
 
-      {/* Create Product Modal */}
+      {/* Category Modal */}
       <Modal
         disableAutoFocus={true}
         className={classes.modal}
-        open={createProductModal}
-        onClose={closeCreateNewProductModal}
+        open={addCategoryModal}
+        onClose={closeAddCategory}
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
@@ -204,21 +233,23 @@ const Inventory = (props) => {
         closeAfterTransition
         disableBackdropClick
       >
-        <Fade in={createProductModal}>
+        <Fade in={addCategoryModal}>
           <div className={classes.paper}>
-            <CreateProductForm handleClose={closeCreateNewProductModal} />
+            <AddCategory onClose={closeAddCategory} />
           </div>
         </Fade>
       </Modal>
+
+  
     </React.Fragment>
   );
 };
 
-Inventory.defaultProps = {
+Category.defaultProps = {
   products: [],
 };
 
-Inventory.propTypes = {
+Category.propTypes = {
   products: PropTypes.array.isRequired,
 };
 
@@ -228,4 +259,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(Inventory);
+export default connect(mapStateToProps, null)(Category);
