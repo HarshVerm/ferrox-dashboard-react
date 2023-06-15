@@ -12,7 +12,7 @@ export default async function updateCollection(collection) {
         message: ''
     }
 
-    if (!category || !category.id) {
+    if (!collection || !collection.id) {
         response.message = 'Collection id is required to update'
         return response
     }

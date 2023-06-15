@@ -1,31 +1,34 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { fetchProducts } from "../store/actions/products";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
-import Fab from "@material-ui/core/Fab";
-import Zoom from "@material-ui/core/Zoom";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
-import Paper from "@material-ui/core/Paper";
-import SearchIcon from "@material-ui/icons/Search";
-import ViewModuleIcon from "@material-ui/icons/ViewModule";
-import ViewHeadlineIcon from "@material-ui/icons/ViewHeadline";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import CreateProduct from "./CreateProduct";
-import InventoryItem from "./InventoryItem";
-import EmptyInventory from "./EmptyInventory";
-import AddCategory from "./AddCategory";
-import ProductModal from "./ProductModal";
-import CreateProductForm from "./CreateProductForm";
 import PageTitle from "./../Common/PageTitle";
 import AddCollection from "./AddCollection";
-import { Button } from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  IconButton,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+} from "@material-ui/core";
+import { getAllCollections } from "../services/getCollections";
+import updateCollection from "../services/updateCollection";
+import { enqueueSnackbar } from "notistack";
+import deleteCollection from "../services/deleteCollection";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -96,108 +99,173 @@ const useStyles = makeStyles((theme) => ({
 const Collection = (props) => {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [product, setProduct] = React.useState({
-    id: "ID",
-    name: "Name",
-    type: "Type",
-    description: "Description",
-  });
 
   const [addCollectionModal, setAddCollectionModal] = React.useState(false);
-  const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
+  const [collectionList, setCollectionList] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [editableCollection, setEditableCollection] = useState(null);
 
-  React.useEffect(() => {
-    props.dispatch(fetchProducts());
-    setLastUpdatedTime(`${new Date().toLocaleString()}`);
-  }, []);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   const openAddCollectionModal = () => {
     setAddCollectionModal(true);
   };
 
+  const handleEdit = (collection) => {
+    setEditableCollection(collection);
+    setEdit(true);
+    openAddCollectionModal();
+  };
+
   const closeAddCollection = () => {
     setAddCollectionModal(false);
+    setEdit(false);
+    setEditableCollection(null);
   };
 
-  const handleOpen = (product) => {
-    setProduct(product);
-    setOpen(true);
+  const getCollectionList = useCallback(async () => {
+    // const listOfCategory = await getAllCategories()
+    // setCategories(listOfCategory.categories)
+    const listOfCollections = await getAllCollections();
+
+    setCollectionList(
+      listOfCollections.collections.sort((a, b) => b.title - a.title)
+    );
+  }, []);
+
+  const handleUpdateCollection = async (collection) => {
+    if (collection.title.length > 2) {
+      const response = await updateCollection(collection);
+      enqueueSnackbar(response.message, {
+        variant: response.success ? "success" : "error",
+      });
+      if (response.success) {
+        getCollectionList();
+      }
+    } else {
+      enqueueSnackbar(
+        "Collection length should be greater or equal 3 character",
+        {
+          variant: "error",
+        }
+      );
+    }
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const toggleCollectionEnable = (collection) => {
+    const newCollection = { ...collection, enabled: !collection.enabled };
+    handleUpdateCollection(newCollection);
   };
+
+
+  const handleDeleteCollection = async(id)=>{
+    console.log(id)
+    const response = await deleteCollection(id)
+    console.log(response)
+    enqueueSnackbar(response.message, {
+      variant: response.success ? "success" : "error",
+    });
+    if (response.success) {
+      getCollectionList();
+    }
+  }
+
+  useEffect(() => {
+    getCollectionList();
+  }, []);
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg">
-        <PageTitle title="Inventory" />
-        <Paper className={classes.toolbar}>
-          <div style={{ display: "flex" }}>
-            <div>
-              <IconButton className={classes.button} color="primary">
-                <ViewModuleIcon />
-              </IconButton>
-              <IconButton className={classes.button}>
-                <ViewHeadlineIcon />
-              </IconButton>
-              <IconButton className={classes.button}>
-                <RefreshIcon />
-              </IconButton>
-            </div>
-            <div className={classes.action}>
+      <Container maxWidth="lg" style={{ marginTop: "2rem" }}>
+        <Card
+          style={{
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingBottom: "1rem",
+          }}
+        >
+          <Box style={{ display: "flex" }}>
+            <PageTitle title="Inventory" />
+            <div
+              className={classes.action}
+              style={{ marginTOp: 0, lineHeight: 6 }}
+            >
               <Button
                 variant="outlined"
                 color="primary"
-                className={classes.button}
+                className={classes.button2}
                 style={{ marginRight: "1em" }}
                 onClick={openAddCollectionModal}
               >
                 Add Collection
               </Button>
             </div>
-          </div>
-        </Paper>
-        {props.products.length === 0 || props.products.length === null ? (
-          <EmptyInventory />
-        ) : (
-          <React.Fragment>
-            <Grid container spacing={2}>
-              {props.products.map((product) => (
-                <Grid item xs={4} key={product.id}>
-                  <InventoryItem item={product} openModal={handleOpen} />
-                </Grid>
-              ))}
-            </Grid>
-            <Container className={classes.lastUpdated}>
-              <Typography variant="overline">
-                Inventory up to date. Last retrieved at {lastUpdatedTime}
-              </Typography>
-            </Container>
-          </React.Fragment>
-        )}
+          </Box>
+          <Grid container spacing={2}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>
+                    Description
+                  </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Enabled</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {collectionList
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((collection, _index) => (
+                    <TableRow key={collection.id}>
+                      <TableCell>{collection.title}</TableCell>
+                      <TableCell>{collection.description}</TableCell>
+                      <TableCell>
+                        {
+                          <Switch
+                            checked={collection.enabled}
+                            color="primary"
+                            onClick={() => toggleCollectionEnable(collection)}
+                          />
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <Box style={{ display: "flex" }}>
+                          <IconButton onClick={() => handleEdit(collection)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton onClick={() => handleDeleteCollection(collection.id)} style={{color:"red"}}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 100]}
+              component="div"
+              count={collectionList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{ color: "text.secondary" }}
+            />
+          </Grid>
+        </Card>
       </Container>
-
-
-      <Modal
-        disableAutoFocus={true}
-        className={classes.modal}
-        open={open}
-        onClose={handleClose}
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-        closeAfterTransition
-        disableBackdropClick
-      >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <ProductModal item={product} setProduct={setProduct} />
-          </div>
-        </Fade>
-      </Modal>
 
       {/* Collection Modal */}
       <Modal
@@ -214,12 +282,16 @@ const Collection = (props) => {
       >
         <Fade in={addCollectionModal}>
           <div className={classes.paper}>
-            <AddCollection onClose={closeAddCollection} />
+            <AddCollection
+              onClose={closeAddCollection}
+              edit={edit}
+              collection={editableCollection}
+              handleUpdate={handleUpdateCollection}
+              getCollectionList={getCollectionList}
+            />
           </div>
         </Fade>
       </Modal>
-
-     
     </React.Fragment>
   );
 };
