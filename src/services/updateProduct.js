@@ -21,8 +21,9 @@ export default async function updateProduct(product) {
 
     const { images: selectedImages } = product
 
-    const filteredPromisesTobe = selectedImages.filter((image) => !isUrl(image))
-    const existingUrls = selectedImages.filter((image) => isUrl(image))
+    const filteredPromisesTobe = selectedImages.filter((image) => !isUrl(image.data))
+    const existingUrls = selectedImages.filter((image) => isUrl(image.data))
+    const filteredExistingUrls = existingUrls.map(item=>item.data)
     const imageUrls = filteredPromisesTobe.map(async (set, _set_index) => {
         //NOTE: in case of file path is provided, uncomment this and pass data
         // const data = readFileSync(set)
@@ -31,8 +32,8 @@ export default async function updateProduct(product) {
     })
 
     return Promise.all([...imageUrls]).then(async (images) => {
-        const updatedImages = [...existingUrls, ...images]
-        const updatedProduct = { ...product, images: updatedImages }
+        const updatedImages = [...filteredExistingUrls, ...images]
+        const updatedProduct = { ...product, images: updatedImages,productPrimaryImage:updatedImages[0] }
         const updateProductRef = doc(fireDb, Models.PRODUCTS, product.productId);
 
         await updateDoc(updateProductRef, {
@@ -45,7 +46,7 @@ export default async function updateProduct(product) {
         return response
     }).catch((e) => {
         response.success = false
-        response.message = JSON.stringify(3)
+        response.message = JSON.stringify(e)
 
         return response
     })

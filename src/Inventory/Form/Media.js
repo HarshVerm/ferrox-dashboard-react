@@ -36,14 +36,14 @@ export default function Media(props) {
 
     Promise.resolve(filePromise).then((base64Images) => {
       setImages((prevState) => {
-        return { ...prevState, [event.target.name]: {data:base64Images.result,extension} };
+        return { ...prevState, [event.target.name]: {data:base64Images.result,extension,id:null} };
       });
     });
   };
 
   const removeImage =(key)=>{
     setImages((prevState) => {
-      return { ...prevState, [key]: {data:null,extension:null} };
+      return { ...prevState, [key]: {data:null,extension:null,id:null} };
     });
   }
 
@@ -81,7 +81,6 @@ export default function Media(props) {
                       name={key}
                     />
                     <label htmlFor={key} className="upload-button">
-                      {key}
                       <div>
                         <AddCircleOutlinedIcon style={{fontSize:"80px"}}/>
                       </div>

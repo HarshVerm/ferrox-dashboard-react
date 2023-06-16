@@ -14,7 +14,7 @@ export default async function deleteProduct(productId) {
         message: ''
     }
 
-    if (!product.productId) {
+    if (!productId) {
         response.message = 'Product id is required to delete.'
         return response
     }

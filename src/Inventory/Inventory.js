@@ -25,6 +25,8 @@ import {
 import { getAllProducts } from "../services/getAllProducts";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
+import { enqueueSnackbar } from "notistack";
+import deleteProduct from "../services/deleteProduct";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -93,9 +95,11 @@ const Inventory = (props) => {
 
   const [createProductModal, setCreateProductModal] = useState(false);
   const [productList, setProductList] = useState([]);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [edit,setEdit] = useState(false)
+  const [editableProduct,setEditableProduct] = useState({})
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -111,8 +115,26 @@ const Inventory = (props) => {
   };
 
   const closeCreateNewProductModal = () => {
+    setEdit(false)
+    setEditableProduct({})
     setCreateProductModal(false);
   };
+
+  const editProduct = (product)=>{
+    setEditableProduct(product)
+    setEdit(true)
+    openCreateNewProductModal()
+  }
+
+  const handleDeleteProduct = async(id)=>{
+    const response = await deleteProduct(id)
+    enqueueSnackbar(response.message, {
+      variant: response.success ? "success" : "error",
+    });
+    if (response.success) {
+      getProductList();
+    }
+  }
 
   const getProductList = useCallback(async () => {
     const products = await getAllProducts();
@@ -135,7 +157,7 @@ const Inventory = (props) => {
           }}
         >
           <Box style={{ display: "flex" }}>
-            <PageTitle title="Inventory" />
+            <PageTitle title="Products" />
             <div
               className={classes.action}
               style={{ marginTOp: 0, lineHeight: 6 }}
@@ -151,6 +173,9 @@ const Inventory = (props) => {
                   <TableCell style={{ fontWeight: "bold" }}>
                     Description
                   </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>
+                    Price
+                  </TableCell>
                   <TableCell style={{ fontWeight: "bold" }}>Featured</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}></TableCell>
                 </TableRow>
@@ -159,9 +184,10 @@ const Inventory = (props) => {
                 {productList.length > 0 &&  productList
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((product, _index) => (
-                    <TableRow key={product.id}>
+                    <TableRow key={product.productId}>
                       <TableCell>{product.title}</TableCell>
                       <TableCell>{product.description}</TableCell>
+                      <TableCell>{product.priceTag.value}</TableCell>
                       <TableCell>
                         {
                           <Switch
@@ -174,14 +200,14 @@ const Inventory = (props) => {
                       <TableCell>
                         <Box style={{ display: "flex" }}>
                           <IconButton 
-                          // onClick={() => handleEdit(collection)}
+                          onClick={() => editProduct(product)}
                           >
                             <EditIcon />
                           </IconButton>
                           <IconButton
-                            // onClick={() =>
-                            //   handleDeleteCollection(collection.id)
-                            // }
+                            onClick={() =>
+                              handleDeleteProduct(product.productId)
+                            }
                             style={{ color: "red" }}
                           >
                             <DeleteIcon />
@@ -221,7 +247,7 @@ const Inventory = (props) => {
       >
         <Fade in={createProductModal}>
           <div className={classes.paper}>
-            <CreateProductForm handleClose={closeCreateNewProductModal} />
+            <CreateProductForm handleClose={closeCreateNewProductModal} edit = {edit} editableProduct = { editableProduct} getProductList = {getProductList} />
           </div>
         </Fade>
       </Modal>

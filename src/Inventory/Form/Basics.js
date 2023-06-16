@@ -39,6 +39,21 @@ export default function Basics(props) {
     });
   };
 
+  const handleSelectCollection = (event)=>{
+    event.persist();
+    const filterList = collections.filter(item=>item.id === event.target.value )
+    setProduct((prevState) => {
+      return { ...prevState, collectionId: event.target.value, collection:filterList[0].title};
+    });
+  }
+  const handleSelectCategory = (event)=>{
+    event.persist();
+    const filterList = categories.filter(item=>item.id === event.target.value )
+    setProduct((prevState) => {
+      return { ...prevState, categoryId: event.target.value, category:filterList[0].title};
+    });
+  }
+
   const handleChangeStock = (event) => {
     event.persist();
     setStock((prevState) => {
@@ -124,19 +139,19 @@ export default function Basics(props) {
                 Category
               </InputLabel>
               <Select
-                value={product.category}
+                value={product.categoryId}
                 labelWidth={labelWidth}
                 inputProps={{
                   name: "category",
                   id: "outlined-category-simple",
                 }}
                 name="category"
-                onChange={handleChangeProductDetails}
+                onChange={handleSelectCategory}
               >
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-               {categories.map(category=><MenuItem key={category.title} value={category.title}>{category.title}</MenuItem>)}
+               {categories.map(category=><MenuItem key={category.id} value={category.id}>{category.title}</MenuItem>)}
               </Select>
             </FormControl>
           </Grid>
@@ -150,19 +165,19 @@ export default function Basics(props) {
                 Collection
               </InputLabel>
               <Select
-                value={product.collection}
+                value={product.collectionId}
                 labelWidth={labelWidth}
                 inputProps={{
                   name: "collection",
                   id: "outlined-category-simple",
                 }}
                 name="collection"
-                onChange={handleChangeProductDetails}
+                onChange={handleSelectCollection}
               >
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-               {collections.map(collection=><MenuItem key={collection.title} value={collection.title}>{collection.title}</MenuItem>)}
+               {collections.map(collection=><MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>)}
               </Select>
             </FormControl>
           </Grid>
@@ -205,7 +220,7 @@ export default function Basics(props) {
                 className={classes.textField}
                 margin="normal"
                 variant="outlined"
-                type="number"
+                type="text"
                 InputProps={{
                   inputProps: { min: 1 },
                 }}

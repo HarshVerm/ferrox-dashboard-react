@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -14,6 +14,7 @@ import { enqueueSnackbar } from "notistack";
 import Basics from "./Form/Basics";
 import Media from "./Form/Media";
 import addNewProducts from "../services/addNewProduct";
+import updateProduct from "../services/updateProduct";
 
 const useStyles = makeStyles((theme) => ({
   grid: {
@@ -44,6 +45,7 @@ function getSteps() {
 }
 
 export default function CreateProductForm(props) {
+  const { edit, editableProduct, getProductList } = props;
   const classes = useStyles();
 
   const [product, setProduct] = React.useState({
@@ -55,6 +57,8 @@ export default function CreateProductForm(props) {
     currency: "INR",
     price: 1,
     returnAndExchange: false,
+    categoryId: "",
+    collectionId: "",
   });
 
   const [images, setImages] = useState({
@@ -154,10 +158,10 @@ export default function CreateProductForm(props) {
     if (filterImages.length > 2) {
       let data = {
         images: filterImages,
-        categoryId: product.category.toLowerCase().split(" ").join("-"),
+        categoryId: product.categoryId,
         category: product.category,
         collection: product.collection,
-        collectionId: product.collection.toLowerCase().split(" ").join("-"),
+        collectionId: product.collectionId,
         title: product.title,
         priceTag: { currency: product.currency, value: product.price },
         description: product.description,
@@ -174,12 +178,84 @@ export default function CreateProductForm(props) {
       enqueueSnackbar(response.message, {
         variant: response.success ? "success" : "error",
       });
+      if (response.success) {
+        getProductList();
+      }
     } else {
       enqueueSnackbar("Add atleast 3 images", {
         variant: "error",
       });
     }
   };
+
+  const handleUpdateProduct = async () => {
+    const filterImages = Object.keys(images)
+      .map((key) => {
+        if (images[key].data !== null) {
+          return images[key];
+        }
+        return false;
+      })
+      .filter((image) => image);
+      
+    if (filterImages.length > 2) {
+      let data = {
+        productId: editableProduct.productId,
+        images: filterImages,
+        categoryId: product.categoryId,
+        category: product.category,
+        collection: product.collection,
+        collectionId: product.collectionId,
+        title: product.title,
+        priceTag: { currency: product.currency, value: product.price >= 0  ? product.price: 0 },
+        description: product.description,
+        inStock: stock,
+        highlights: product.highlights,
+        returnAndExchange: {
+          accepted: product.returnAndExchange,
+          message: "Hassle-free returns and exchanges.",
+          window: "30 days",
+          windowMessage: "Return or exchange within 30 days of purchase.",
+        },
+      };
+      console.log("Update",data)
+      const response = await updateProduct(data);
+      console.log("response",response)
+      enqueueSnackbar(response.message, {
+        variant: response.success ? "success" : "error",
+      });
+      if (response.success) {
+        getProductList();
+      }
+    } else {
+      enqueueSnackbar("Add atleast 3 images", {
+        variant: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (edit) {
+      setProduct({
+        title: editableProduct.title,
+        category: editableProduct.category,
+        description: editableProduct.description,
+        collection: editableProduct.collection,
+        highlights: editableProduct.highlights,
+        currency: editableProduct.priceTag.currency,
+        price: editableProduct.priceTag.value,
+        returnAndExchange: editableProduct.returnAndExchange.accepted,
+        categoryId: editableProduct.categoryId,
+        collectionId: editableProduct.collectionId,
+      });
+      setStock({ ...editableProduct.inStock });
+      editableProduct.images.forEach((item, index) => {
+        setImages((prevState) => {
+          return { ...prevState, [index]: { data: item, extension: null } };
+        });
+      });
+    }
+  }, [edit]);
 
   return (
     <Box>
@@ -225,14 +301,23 @@ export default function CreateProductForm(props) {
               </Button>
             ) : null}
             {activeStep === steps.length - 1 ? (
-              <Button
+              <>
+              {!edit ? <Button
                 variant="contained"
                 color="primary"
                 className={classes.button}
                 onClick={handleAddProduct}
-              >
+                >
                 Add
-              </Button>
+              </Button>:<Button
+                variant="contained"
+                color="primary"
+                className={classes.button}
+                onClick={handleUpdateProduct}
+                >
+                Update
+              </Button>}
+                </>
             ) : (
               <Button
                 variant="contained"
