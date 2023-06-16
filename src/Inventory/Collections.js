@@ -15,7 +15,6 @@ import {
   Box,
   Button,
   Card,
-  Divider,
   IconButton,
   Switch,
   Table,
@@ -98,7 +97,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Collection = (props) => {
   const classes = useStyles();
-  const theme = useTheme();
 
   const [addCollectionModal, setAddCollectionModal] = React.useState(false);
   const [collectionList, setCollectionList] = useState([]);
@@ -134,13 +132,9 @@ const Collection = (props) => {
   };
 
   const getCollectionList = useCallback(async () => {
-    // const listOfCategory = await getAllCategories()
-    // setCategories(listOfCategory.categories)
     const listOfCollections = await getAllCollections();
 
-    setCollectionList(
-      listOfCollections.collections.sort((a, b) => b.title - a.title)
-    );
+    if(listOfCollections.collections)setCollectionList(listOfCollections.collections);
   }, []);
 
   const handleUpdateCollection = async (collection) => {
@@ -169,7 +163,6 @@ const Collection = (props) => {
 
 
   const handleDeleteCollection = async(id)=>{
-    console.log(id)
     const response = await deleteCollection(id)
     console.log(response)
     enqueueSnackbar(response.message, {
@@ -195,7 +188,7 @@ const Collection = (props) => {
           }}
         >
           <Box style={{ display: "flex" }}>
-            <PageTitle title="Inventory" />
+            <PageTitle title="Collection" />
             <div
               className={classes.action}
               style={{ marginTOp: 0, lineHeight: 6 }}
@@ -224,7 +217,7 @@ const Collection = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {collectionList
+                {collectionList.length > 0 && collectionList
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((collection, _index) => (
                     <TableRow key={collection.id}>
@@ -259,8 +252,8 @@ const Collection = (props) => {
               count={collectionList.length}
               rowsPerPage={rowsPerPage}
               page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
               sx={{ color: "text.secondary" }}
             />
           </Grid>

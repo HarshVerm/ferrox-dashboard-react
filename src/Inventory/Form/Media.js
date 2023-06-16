@@ -75,12 +75,13 @@ export default function Media(props) {
                   <>
                     <input
                       type="file"
-                      id="upload"
+                      id={key}
                       accept="image/*"
                       onChange={handleImageChange}
                       name={key}
                     />
-                    <label htmlFor="upload" className="upload-button">
+                    <label htmlFor={key} className="upload-button">
+                      {key}
                       <div>
                         <AddCircleOutlinedIcon style={{fontSize:"80px"}}/>
                       </div>

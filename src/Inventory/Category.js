@@ -1,31 +1,36 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { fetchProducts } from "../store/actions/products";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
-import Paper from "@material-ui/core/Paper";
 import SearchIcon from "@material-ui/icons/Search";
-import ViewModuleIcon from "@material-ui/icons/ViewModule";
-import ViewHeadlineIcon from "@material-ui/icons/ViewHeadline";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import CreateProduct from "./CreateProduct";
-import InventoryItem from "./InventoryItem";
-import EmptyInventory from "./EmptyInventory";
 import AddCategory from "./AddCategory";
-import ProductModal from "./ProductModal";
-import CreateProductForm from "./CreateProductForm";
 import PageTitle from "./../Common/PageTitle";
-import AddCollection from "./AddCollection";
-import { Button } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Card,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+} from "@material-ui/core";
+import { getAllCategories } from "../services/getCategories";
+import updateCategory from "../services/updateCategory";
+import { enqueueSnackbar } from "notistack";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
+import deleteCategory from "../services/deleteCategory";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -96,21 +101,22 @@ const useStyles = makeStyles((theme) => ({
 const Category = (props) => {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [product, setProduct] = React.useState({
-    id: "ID",
-    name: "Name",
-    type: "Type",
-    description: "Description",
-  });
-
   const [addCategoryModal, setAddCategoryModal] = React.useState(false);
-  const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
+  const [categoryList, setCategoryList] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [editableCategory, setEditableCategory] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  React.useEffect(() => {
-    props.dispatch(fetchProducts());
-    setLastUpdatedTime(`${new Date().toLocaleString()}`);
-  }, []);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    console.log(event)
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   const openAddCategoryModal = () => {
     setAddCategoryModal(true);
@@ -118,16 +124,58 @@ const Category = (props) => {
 
   const closeAddCategory = () => {
     setAddCategoryModal(false);
+    setEdit(false);
+    setEditableCategory(null);
   };
 
-  const handleOpen = (product) => {
-    setProduct(product);
-    setOpen(true);
+  const handleEdit = (category) => {
+    setEditableCategory(category);
+    setEdit(true);
+    openAddCategoryModal();
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleUpdateCategory = async (category) => {
+    if (category.title.length > 2) {
+      const response = await updateCategory(category);
+      enqueueSnackbar(response.message, {
+        variant: response.success ? "success" : "error",
+      });
+      if (response.success) {
+        getCategoryList();
+      }
+    } else {
+      enqueueSnackbar(
+        "Collection length should be greater or equal 3 character",
+        {
+          variant: "error",
+        }
+      );
+    }
   };
+
+  const toggleCategoryEnable = (category) => {
+    const newCategory = { ...category, enabled: !category.enabled };
+    handleUpdateCategory(newCategory);
+  };
+
+  const getCategoryList = useCallback(async () => {
+    const listOfCategory = await getAllCategories();
+    if(listOfCategory.categories) setCategoryList(listOfCategory.categories);
+  }, []);
+
+  const handleDeleteCategory = async (id) => {
+    const response = await deleteCategory(id);
+    enqueueSnackbar(response.message, {
+      variant: response.success ? "success" : "error",
+    });
+    if (response.success) {
+      getCategoryList();
+    }
+  };
+
+  useEffect(() => {
+    getCategoryList();
+  }, []);
 
   const transitionDuration = {
     enter: theme.transitions.duration.enteringScreen,
@@ -136,22 +184,20 @@ const Category = (props) => {
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg">
-        <PageTitle title="Inventory" />
-        <Paper className={classes.toolbar}>
-          <div style={{ display: "flex" }}>
-            <div>
-              <IconButton className={classes.button} color="primary">
-                <ViewModuleIcon />
-              </IconButton>
-              <IconButton className={classes.button}>
-                <ViewHeadlineIcon />
-              </IconButton>
-              <IconButton className={classes.button}>
-                <RefreshIcon />
-              </IconButton>
-            </div>
-            <div className={classes.action}>
+      <Container maxWidth="lg" style={{ marginTop: "2rem" }}>
+        <Card
+          style={{
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingBottom: "1rem",
+          }}
+        >
+          <Box style={{ display: "flex" }}>
+            <PageTitle title="Category" />
+            <div
+              className={classes.action}
+              style={{ marginTOp: 0, lineHeight: 6 }}
+            >
               <Button
                 variant="outlined"
                 color="primary"
@@ -162,26 +208,65 @@ const Category = (props) => {
                 Add Category
               </Button>
             </div>
-          </div>
-        </Paper>
-        {props.products.length === 0 || props.products.length === null ? (
-          <EmptyInventory />
-        ) : (
-          <React.Fragment>
-            <Grid container spacing={2}>
-              {props.products.map((product) => (
-                <Grid item xs={4} key={product.id}>
-                  <InventoryItem item={product} openModal={handleOpen} />
-                </Grid>
-              ))}
-            </Grid>
-            <Container className={classes.lastUpdated}>
-              <Typography variant="overline">
-                Inventory up to date. Last retrieved at {lastUpdatedTime}
-              </Typography>
-            </Container>
-          </React.Fragment>
-        )}
+          </Box>
+
+          <Grid container spacing={2}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>
+                    Description
+                  </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Enabled</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {categoryList.length > 0 && categoryList
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((category, _index) => (
+                    <TableRow key={category.id}>
+                      <TableCell>{category.title}</TableCell>
+                      <TableCell>{category.description}</TableCell>
+                      <TableCell>
+                        {
+                          <Switch
+                            checked={category.enabled}
+                            color="primary"
+                            onClick={() => toggleCategoryEnable(category)}
+                          />
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <Box style={{ display: "flex" }}>
+                          <IconButton onClick={() => handleEdit(category)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => handleDeleteCategory(category.id)}
+                            style={{ color: "red" }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 100]}
+              component="div"
+              count={categoryList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+              sx={{ color: "text.secondary" }}
+            />
+          </Grid>
+        </Card>
       </Container>
 
       <Zoom
@@ -201,25 +286,6 @@ const Category = (props) => {
         </Fab>
       </Zoom>
 
-      <Modal
-        disableAutoFocus={true}
-        className={classes.modal}
-        open={open}
-        onClose={handleClose}
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-        closeAfterTransition
-        disableBackdropClick
-      >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <ProductModal item={product} setProduct={setProduct} />
-          </div>
-        </Fade>
-      </Modal>
-
       {/* Category Modal */}
       <Modal
         disableAutoFocus={true}
@@ -235,12 +301,14 @@ const Category = (props) => {
       >
         <Fade in={addCategoryModal}>
           <div className={classes.paper}>
-            <AddCategory onClose={closeAddCategory} />
+            <AddCategory onClose={closeAddCategory} 
+            edit ={edit}
+            category = {editableCategory}
+            handleUpdate = {handleUpdateCategory}
+            getCategoryList = {getCategoryList}/>
           </div>
         </Fade>
       </Modal>
-
-  
     </React.Fragment>
   );
 };

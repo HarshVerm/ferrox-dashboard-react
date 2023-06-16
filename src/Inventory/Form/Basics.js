@@ -56,9 +56,9 @@ export default function Basics(props) {
 
   const getList = useCallback(async()=>{
     const listOfCategory = await getAllCategories()
-    setCategories(listOfCategory.categories)
+    if(listOfCategory.categories)setCategories(listOfCategory.categories)
     const listOfCollections = await getAllCollections()
-    setCollections(listOfCollections.collections)
+    if(listOfCollections.collections) setCollections(listOfCollections.collections)
   },[])
 
   React.useEffect(() => {

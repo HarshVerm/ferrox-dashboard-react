@@ -1,30 +1,30 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { fetchProducts } from "../store/actions/products";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
-import Fab from "@material-ui/core/Fab";
-import Zoom from "@material-ui/core/Zoom";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
-import Paper from "@material-ui/core/Paper";
-import SearchIcon from "@material-ui/icons/Search";
-import ViewModuleIcon from "@material-ui/icons/ViewModule";
-import ViewHeadlineIcon from "@material-ui/icons/ViewHeadline";
-import RefreshIcon from "@material-ui/icons/Refresh";
 import CreateProduct from "./CreateProduct";
-import InventoryItem from "./InventoryItem";
-import EmptyInventory from "./EmptyInventory";
-import AddCategory from "./AddCategory";
-import ProductModal from "./ProductModal";
 import CreateProductForm from "./CreateProductForm";
 import PageTitle from "./../Common/PageTitle";
-import AddCollection from "./AddCollection";
+import {
+  Box,
+  Card,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+} from "@material-ui/core";
+import { getAllProducts } from "../services/getAllProducts";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -90,22 +90,21 @@ const useStyles = makeStyles((theme) => ({
 
 const Inventory = (props) => {
   const classes = useStyles();
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [product, setProduct] = React.useState({
-    id: "ID",
-    name: "Name",
-    type: "Type",
-    description: "Description",
-  });
 
-  const [createProductModal, setCreateProductModal] = React.useState(false);
-  const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
+  const [createProductModal, setCreateProductModal] = useState(false);
+  const [productList, setProductList] = useState([]);
 
-  React.useEffect(() => {
-    props.dispatch(fetchProducts());
-    setLastUpdatedTime(`${new Date().toLocaleString()}`);
-  }, []);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   const openCreateNewProductModal = () => {
     setCreateProductModal(true);
@@ -115,81 +114,97 @@ const Inventory = (props) => {
     setCreateProductModal(false);
   };
 
-  const handleOpen = (product) => {
-    setProduct(product);
-    setOpen(true);
-  };
+  const getProductList = useCallback(async () => {
+    const products = await getAllProducts();
+    console.log(products.products)
+    if(products.products) setProductList(products.products);
+  }, []);
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const transitionDuration = {
-    enter: theme.transitions.duration.enteringScreen,
-    exit: theme.transitions.duration.leavingScreen,
-  };
+  useEffect(() => {
+    getProductList();
+  }, []);
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg">
-        <PageTitle title="Inventory" />
-        <Paper className={classes.toolbar}>
-          <div style={{ display: "flex" }}>
-            <div>
-              <IconButton className={classes.button} color="primary">
-                <ViewModuleIcon />
-              </IconButton>
-              <IconButton className={classes.button}>
-                <ViewHeadlineIcon />
-              </IconButton>
-              <IconButton className={classes.button}>
-                <RefreshIcon />
-              </IconButton>
+      <Container maxWidth="lg" style={{ marginTop: "2rem" }}>
+        <Card
+          style={{
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingBottom: "1rem",
+          }}
+        >
+          <Box style={{ display: "flex" }}>
+            <PageTitle title="Inventory" />
+            <div
+              className={classes.action}
+              style={{ marginTOp: 0, lineHeight: 6 }}
+            >
+              <CreateProduct createProduct={openCreateNewProductModal} />
             </div>
-            <div className={classes.action}>
-              <CreateProduct createProduct={openCreateNewProductModal}/>
-            </div>
-          </div>
-        </Paper>
-        {props.products.length === 0 || props.products.length === null ? (
-          <EmptyInventory />
-        ) : (
-          <React.Fragment>
-            <Grid container spacing={2}>
-              {props.products.map((product) => (
-                <Grid item xs={4} key={product.id}>
-                  <InventoryItem item={product} openModal={handleOpen} />
-                </Grid>
-              ))}
-            </Grid>
-            <Container className={classes.lastUpdated}>
-              <Typography variant="overline">
-                Inventory up to date. Last retrieved at {lastUpdatedTime}
-              </Typography>
-            </Container>
-          </React.Fragment>
-        )}
+          </Box>
+          <Grid container spacing={2}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>
+                    Description
+                  </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Featured</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {productList.length > 0 &&  productList
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((product, _index) => (
+                    <TableRow key={product.id}>
+                      <TableCell>{product.title}</TableCell>
+                      <TableCell>{product.description}</TableCell>
+                      <TableCell>
+                        {
+                          <Switch
+                            // checked={collection.enabled}
+                            color="primary"
+                            // onClick={() => toggleCollectionEnable(collection)}
+                          />
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <Box style={{ display: "flex" }}>
+                          <IconButton 
+                          // onClick={() => handleEdit(collection)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            // onClick={() =>
+                            //   handleDeleteCollection(collection.id)
+                            // }
+                            style={{ color: "red" }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 100]}
+              component="div"
+              count={productList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+              sx={{ color: "text.secondary" }}
+            />
+          </Grid>
+        </Card>
       </Container>
-
-
-      <Modal
-        disableAutoFocus={true}
-        className={classes.modal}
-        open={open}
-        onClose={handleClose}
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-        closeAfterTransition
-        disableBackdropClick
-      >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <ProductModal item={product} setProduct={setProduct} />
-          </div>
-        </Fade>
-      </Modal>
 
       {/* Create Product Modal */}
       <Modal
