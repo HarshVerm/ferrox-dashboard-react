@@ -3,7 +3,7 @@ import { Switch, Route, Link, BrowserRouter, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { userSignOutRequest } from "./store/actions/auth";
-import { SnackbarProvider } from 'notistack'
+import { SnackbarProvider } from "notistack";
 
 import { makeStyles, createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
@@ -37,6 +37,7 @@ import "./App.css";
 import MonkeyAvatar from "../src/Common/img/avatars/monkey.png";
 import Category from "./Inventory/Category";
 import Collections from "./Inventory/Collections";
+import Featured from "./Inventory/Featured";
 
 const useStyles = makeStyles({
   root: {
@@ -221,6 +222,15 @@ function App(props) {
                       className={classes.tab}
                     />
                     <Tab
+                      label="Featured"
+                      value="/dashboard/featured"
+                      component={Link}
+                      to="/dashboard/featured"
+                      disableRipple
+                      className={classes.tab}
+                    />
+
+                    <Tab
                       label="Categories"
                       value="/dashboard/category"
                       component={Link}
@@ -256,8 +266,13 @@ function App(props) {
                   <Route path="/dashboard/products" component={Inventory} />
                   <Route path="/dashboard/category" component={Category} />
                   <Route path="/dashboard/collection" component={Collections} />
+                  <Route path="/dashboard/featured" component={Featured} />
                   <Route path="/dashboard/board" component={Board} />
-                  <PrivateRoute path="/dashboard/orders"   authed={isAuthenticated} component={Orders} />
+                  <PrivateRoute
+                    path="/dashboard/orders"
+                    authed={isAuthenticated}
+                    component={Orders}
+                  />
                   <Route
                     path="/dashboard/home"
                     authed={isAuthenticated}

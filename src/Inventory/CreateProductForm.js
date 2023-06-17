@@ -59,6 +59,7 @@ export default function CreateProductForm(props) {
     returnAndExchange: false,
     categoryId: "",
     collectionId: "",
+    isFeatured: false
   });
 
   const [images, setImages] = useState({
@@ -207,6 +208,7 @@ export default function CreateProductForm(props) {
         collection: product.collection,
         collectionId: product.collectionId,
         title: product.title,
+        isFeatured: product.isFeatured,
         priceTag: { currency: product.currency, value: product.price >= 0  ? product.price: 0 },
         description: product.description,
         inStock: stock,
@@ -247,6 +249,7 @@ export default function CreateProductForm(props) {
         returnAndExchange: editableProduct.returnAndExchange.accepted,
         categoryId: editableProduct.categoryId,
         collectionId: editableProduct.collectionId,
+        isFeatured: editableProduct.isFeatured ? true : false
       });
       setStock({ ...editableProduct.inStock });
       editableProduct.images.forEach((item, index) => {

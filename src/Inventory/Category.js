@@ -313,18 +313,12 @@ const Category = (props) => {
   );
 };
 
-Category.defaultProps = {
-  products: [],
-};
+Category.defaultProps = {};
 
-Category.propTypes = {
-  products: PropTypes.array.isRequired,
-};
+Category.propTypes = {};
 
 function mapStateToProps(state) {
-  return {
-    products: state.product.products,
-  };
+  return {};
 }
 
 export default connect(mapStateToProps, null)(Category);

@@ -1,22 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import Fade from "@material-ui/core/Fade";
 import PageTitle from "./../Common/PageTitle";
-import AddCollection from "./AddCollection";
-import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import {
   Box,
-  Button,
   Card,
   IconButton,
-  Switch,
   Table,
   TableBody,
   TableCell,
@@ -24,10 +16,9 @@ import {
   TablePagination,
   TableRow,
 } from "@material-ui/core";
-import { getAllCollections } from "../services/getCollections";
-import updateCollection from "../services/updateCollection";
 import { enqueueSnackbar } from "notistack";
-import deleteCollection from "../services/deleteCollection";
+import { getAllLandingItems } from "../services/getAllLandingItems";
+import deleteLandingItem from "../services/deleteLandingItem";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -95,13 +86,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Collection = (props) => {
+const Featured = (props) => {
   const classes = useStyles();
 
-  const [addCollectionModal, setAddCollectionModal] = React.useState(false);
-  const [collectionList, setCollectionList] = useState([]);
-  const [edit, setEdit] = useState(false);
-  const [editableCollection, setEditableCollection] = useState(null);
+  const [featuredList, setFeaturedList] = useState([]);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -115,66 +103,25 @@ const Collection = (props) => {
     setPage(0);
   };
 
-  const openAddCollectionModal = () => {
-    setAddCollectionModal(true);
-  };
-
-  const handleEdit = (collection) => {
-    setEditableCollection(collection);
-    setEdit(true);
-    openAddCollectionModal();
-  };
-
-  const closeAddCollection = () => {
-    setAddCollectionModal(false);
-    setEdit(false);
-    setEditableCollection(null);
-  };
-
-  const getCollectionList = useCallback(async () => {
-    const listOfCollections = await getAllCollections();
-
-    if(listOfCollections.collections)setCollectionList(listOfCollections.collections);
+  const getFeaturedList = useCallback(async () => {
+    const listOfFetured = await getAllLandingItems();
+    if (listOfFetured.items) setFeaturedList(listOfFetured.items);
   }, []);
 
-  const handleUpdateCollection = async (collection) => {
-    if (collection.title.length > 2) {
-      const response = await updateCollection(collection);
-      enqueueSnackbar(response.message, {
-        variant: response.success ? "success" : "error",
-      });
-      if (response.success) {
-        getCollectionList();
-      }
-    } else {
-      enqueueSnackbar(
-        "Collection length should be greater or equal 3 character",
-        {
-          variant: "error",
-        }
-      );
-    }
-  };
-
-  const toggleCollectionEnable = (collection) => {
-    const newCollection = { ...collection, enabled: !collection.enabled };
-    handleUpdateCollection(newCollection);
-  };
-
-
-  const handleDeleteCollection = async(id)=>{
-    const response = await deleteCollection(id)
-    console.log(response)
+  const handleDeleteFeatured = async (id, prodId) => {
+    console.log(id);
+    const response = await deleteLandingItem(id, prodId);
+    console.log(response);
     enqueueSnackbar(response.message, {
       variant: response.success ? "success" : "error",
     });
     if (response.success) {
-      getCollectionList();
+      getFeaturedList();
     }
-  }
+  };
 
   useEffect(() => {
-    getCollectionList();
+    getFeaturedList();
   }, []);
 
   return (
@@ -192,64 +139,63 @@ const Collection = (props) => {
             <div
               className={classes.action}
               style={{ marginTOp: 0, lineHeight: 6 }}
-            >
-              <Button
-                variant="outlined"
-                color="primary"
-                className={classes.button2}
-                style={{ marginRight: "1em" }}
-                onClick={openAddCollectionModal}
-              >
-                Add Collection
-              </Button>
-            </div>
+            ></div>
           </Box>
           <Grid container spacing={2}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}>
-                    Description
+                    Featured ID
                   </TableCell>
-                  <TableCell style={{ fontWeight: "bold" }}>Enabled</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Mode</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>URL</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {collectionList.length > 0 && collectionList
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((collection, _index) => (
-                    <TableRow key={collection.id}>
-                      <TableCell>{collection.title}</TableCell>
-                      <TableCell>{collection.description}</TableCell>
-                      <TableCell>
-                        {
-                          <Switch
-                            checked={collection.enabled}
-                            color="primary"
-                            onClick={() => toggleCollectionEnable(collection)}
-                          />
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <Box style={{ display: "flex" }}>
-                          <IconButton onClick={() => handleEdit(collection)}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => handleDeleteCollection(collection.id)} style={{color:"red"}}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {featuredList.length > 0 &&
+                  featuredList
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((featured, _index) => (
+                      <TableRow key={featured.id}>
+                        <TableCell>{featured.id}</TableCell>
+                        <TableCell>{featured.mode}</TableCell>
+                        <TableCell>
+                          <a
+                            href={
+                              featured.mode === "IMAGE"
+                                ? featured.primaryImage
+                                : featured.primaryVideo
+                            }
+                            target="_blank"
+                          >
+                            Click Here
+                          </a>
+                        </TableCell>
+                        <TableCell>
+                          <Box style={{ display: "flex" }}>
+                            <IconButton
+                              onClick={() =>
+                                handleDeleteFeatured(
+                                  featured.id,
+                                  featured.productId
+                                )
+                              }
+                              style={{ color: "red" }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
               </TableBody>
             </Table>
             <TablePagination
               rowsPerPageOptions={[5, 10, 15, 100]}
               component="div"
-              count={collectionList.length}
+              count={featuredList.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onChangePage={handleChangePage}
@@ -261,7 +207,7 @@ const Collection = (props) => {
       </Container>
 
       {/* Collection Modal */}
-      <Modal
+      {/* <Modal
         disableAutoFocus={true}
         className={classes.modal}
         open={addCollectionModal}
@@ -284,21 +230,17 @@ const Collection = (props) => {
             />
           </div>
         </Fade>
-      </Modal>
+      </Modal> */}
     </React.Fragment>
   );
 };
 
-Collection.defaultProps = {
-  
-};
+Featured.defaultProps = {};
 
-Collection.propTypes = {
-
-};
+Featured.propTypes = {};
 
 function mapStateToProps(state) {
   return {};
 }
 
-export default connect(mapStateToProps, null)(Collection);
+export default connect(mapStateToProps, null)(Featured);

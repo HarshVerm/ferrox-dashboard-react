@@ -27,6 +27,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { enqueueSnackbar } from "notistack";
 import deleteProduct from "../services/deleteProduct";
+import AddNewFeaturedProduct from "./AddNewFeaturedProduct";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -98,8 +99,30 @@ const Inventory = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [edit,setEdit] = useState(false)
-  const [editableProduct,setEditableProduct] = useState({})
+  const [edit, setEdit] = useState(false);
+  const [editableProduct, setEditableProduct] = useState({});
+  const [addNewFeatureProduct, setAddNewFeatureProduct] = useState(false);
+
+  const [featureProduct, setFeaturedProduct] = useState({
+    productId: null,
+    productName: null,
+  });
+
+  const openNewFeatureProduct = (productName, productId) => {
+    setAddNewFeatureProduct(true);
+    setFeaturedProduct({
+      productId: productId,
+      productName: productName,
+    });
+  };
+
+  const closeNewFeatureProduct = (productName, productId) => {
+    setAddNewFeatureProduct(false);
+    setFeaturedProduct({
+      productId: null,
+      productName: null,
+    });
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -115,31 +138,31 @@ const Inventory = (props) => {
   };
 
   const closeCreateNewProductModal = () => {
-    setEdit(false)
-    setEditableProduct({})
+    setEdit(false);
+    setEditableProduct({});
     setCreateProductModal(false);
   };
 
-  const editProduct = (product)=>{
-    setEditableProduct(product)
-    setEdit(true)
-    openCreateNewProductModal()
-  }
+  const editProduct = (product) => {
+    setEditableProduct(product);
+    setEdit(true);
+    openCreateNewProductModal();
+  };
 
-  const handleDeleteProduct = async(id)=>{
-    const response = await deleteProduct(id)
+  const handleDeleteProduct = async (id) => {
+    const response = await deleteProduct(id);
     enqueueSnackbar(response.message, {
       variant: response.success ? "success" : "error",
     });
     if (response.success) {
       getProductList();
     }
-  }
+  };
 
   const getProductList = useCallback(async () => {
     const products = await getAllProducts();
-    console.log(products.products)
-    if(products.products) setProductList(products.products);
+    console.log(products.products);
+    if (products.products) setProductList(products.products);
   }, []);
 
   useEffect(() => {
@@ -173,49 +196,46 @@ const Inventory = (props) => {
                   <TableCell style={{ fontWeight: "bold" }}>
                     Description
                   </TableCell>
-                  <TableCell style={{ fontWeight: "bold" }}>
-                    Price
-                  </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Price</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}>Featured</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {productList.length > 0 &&  productList
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((product, _index) => (
-                    <TableRow key={product.productId}>
-                      <TableCell>{product.title}</TableCell>
-                      <TableCell>{product.description}</TableCell>
-                      <TableCell>{product.priceTag.value}</TableCell>
-                      <TableCell>
-                        {
-                          <Switch
-                            // checked={collection.enabled}
-                            color="primary"
-                            // onClick={() => toggleCollectionEnable(collection)}
-                          />
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <Box style={{ display: "flex" }}>
-                          <IconButton 
-                          onClick={() => editProduct(product)}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() =>
-                              handleDeleteProduct(product.productId)
-                            }
-                            style={{ color: "red" }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {productList.length > 0 &&
+                  productList
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((product, _index) => (
+                      <TableRow key={product.productId}>
+                        <TableCell>{product.title}</TableCell>
+                        <TableCell>{product.description}</TableCell>
+                        <TableCell>{product.priceTag.value}</TableCell>
+                        <TableCell>
+                          {
+                            <Switch
+                              checked={product.isFeatured ? true : false}
+                              color="primary"
+                              onClick={() => openNewFeatureProduct(product.title,product.productId)}
+                            />
+                          }
+                        </TableCell>
+                        <TableCell>
+                          <Box style={{ display: "flex" }}>
+                            <IconButton onClick={() => editProduct(product)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={() =>
+                                handleDeleteProduct(product.productId)
+                              }
+                              style={{ color: "red" }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
               </TableBody>
             </Table>
             <TablePagination
@@ -247,7 +267,32 @@ const Inventory = (props) => {
       >
         <Fade in={createProductModal}>
           <div className={classes.paper}>
-            <CreateProductForm handleClose={closeCreateNewProductModal} edit = {edit} editableProduct = { editableProduct} getProductList = {getProductList} />
+            <CreateProductForm
+              handleClose={closeCreateNewProductModal}
+              edit={edit}
+              editableProduct={editableProduct}
+              getProductList={getProductList}
+            />
+          </div>
+        </Fade>
+      </Modal>
+
+      {/* New Featured Modal */}
+      <Modal
+        disableAutoFocus={true}
+        className={classes.modal}
+        open={addNewFeatureProduct}
+        onClose={closeNewFeatureProduct}
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+        closeAfterTransition
+        disableBackdropClick
+      >
+        <Fade in={addNewFeatureProduct}>
+          <div className={classes.paper}>
+            <AddNewFeaturedProduct  onClose={closeNewFeatureProduct} />
           </div>
         </Fade>
       </Modal>
