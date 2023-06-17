@@ -292,7 +292,7 @@ const Inventory = (props) => {
       >
         <Fade in={addNewFeatureProduct}>
           <div className={classes.paper}>
-            <AddNewFeaturedProduct  onClose={closeNewFeatureProduct} />
+            <AddNewFeaturedProduct  onClose={closeNewFeatureProduct} productId ={featureProduct.productId} productName = {featureProduct.productName}/>
           </div>
         </Fade>
       </Modal>
