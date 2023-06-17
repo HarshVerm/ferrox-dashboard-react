@@ -1,3 +1,4 @@
+import { updateDoc } from "firebase/firestore"
 import { Models } from "../firebase/models"
 import { uuidv4 } from "../utils/uuid"
 
@@ -23,8 +24,15 @@ export default async function addLandingPageItems(item) {
 
     Promise.all(imageUrls).then(async (data) => {
         const updatedProduct = { ...item, id: itemId, primaryImage: data[0], primaryVideo: data[1] }
-        const productRef = doc(fireDb, Models.LANDING_PAGE_ITEM, itemId);
-        await setDoc(productRef, updatedProduct);
+        const landingItemRef = doc(fireDb, Models.LANDING_PAGE_ITEM, itemId);
+        const productRef = doc(fireDb, Models.PRODUCTS, item?.productId);
+        await setDoc(landingItemRef, updatedProduct);
+        await updateDoc(productRef, {
+            isFeatured: true
+        });
+
+
+
     }).then(() => {
         return { success: true, message: 'Landing page item added successfully. ' }
     }).catch((e) => {
