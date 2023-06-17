@@ -15,6 +15,7 @@ import Basics from "./Form/Basics";
 import Media from "./Form/Media";
 import addNewProducts from "../services/addNewProduct";
 import updateProduct from "../services/updateProduct";
+import { CustomButton } from "../Common/CustomButton";
 
 const useStyles = makeStyles((theme) => ({
   grid: {
@@ -59,7 +60,7 @@ export default function CreateProductForm(props) {
     returnAndExchange: false,
     categoryId: "",
     collectionId: "",
-    isFeatured: false
+    isFeatured: false,
   });
 
   const [images, setImages] = useState({
@@ -113,6 +114,8 @@ export default function CreateProductForm(props) {
     XXL: 0,
   });
 
+  const [loading, setLoading] = useState(false);
+
   function getStepContent(stepIndex) {
     switch (stepIndex) {
       case 0:
@@ -147,6 +150,7 @@ export default function CreateProductForm(props) {
   };
 
   const handleAddProduct = async () => {
+    setLoading(true);
     const filterImages = Object.keys(images)
       .map((key) => {
         if (images[key].data !== null) {
@@ -187,9 +191,11 @@ export default function CreateProductForm(props) {
         variant: "error",
       });
     }
+    setLoading(false);
   };
 
   const handleUpdateProduct = async () => {
+    setLoading(true);
     const filterImages = Object.keys(images)
       .map((key) => {
         if (images[key].data !== null) {
@@ -198,7 +204,7 @@ export default function CreateProductForm(props) {
         return false;
       })
       .filter((image) => image);
-      
+
     if (filterImages.length > 2) {
       let data = {
         productId: editableProduct.productId,
@@ -209,7 +215,10 @@ export default function CreateProductForm(props) {
         collectionId: product.collectionId,
         title: product.title,
         isFeatured: product.isFeatured,
-        priceTag: { currency: product.currency, value: product.price >= 0  ? product.price: 0 },
+        priceTag: {
+          currency: product.currency,
+          value: product.price >= 0 ? product.price : 0,
+        },
         description: product.description,
         inStock: stock,
         highlights: product.highlights,
@@ -220,9 +229,9 @@ export default function CreateProductForm(props) {
           windowMessage: "Return or exchange within 30 days of purchase.",
         },
       };
-      console.log("Update",data)
+      console.log("Update", data);
       const response = await updateProduct(data);
-      console.log("response",response)
+      console.log("response", response);
       enqueueSnackbar(response.message, {
         variant: response.success ? "success" : "error",
       });
@@ -234,6 +243,7 @@ export default function CreateProductForm(props) {
         variant: "error",
       });
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -249,7 +259,7 @@ export default function CreateProductForm(props) {
         returnAndExchange: editableProduct.returnAndExchange.accepted,
         categoryId: editableProduct.categoryId,
         collectionId: editableProduct.collectionId,
-        isFeatured: editableProduct.isFeatured ? true : false
+        isFeatured: editableProduct.isFeatured ? true : false,
       });
       setStock({ ...editableProduct.inStock });
       editableProduct.images.forEach((item, index) => {
@@ -305,22 +315,20 @@ export default function CreateProductForm(props) {
             ) : null}
             {activeStep === steps.length - 1 ? (
               <>
-              {!edit ? <Button
-                variant="contained"
-                color="primary"
-                className={classes.button}
-                onClick={handleAddProduct}
-                >
-                Add
-              </Button>:<Button
-                variant="contained"
-                color="primary"
-                className={classes.button}
-                onClick={handleUpdateProduct}
-                >
-                Update
-              </Button>}
-                </>
+                {!edit ? (
+                  <CustomButton
+                    loading={loading}
+                    onClick={handleAddProduct}
+                    label="Add"
+                  />
+                ) : (
+                  <CustomButton
+                    loading={loading}
+                    onClick={handleUpdateProduct}
+                    label="Update"
+                  />
+                )}
+              </>
             ) : (
               <Button
                 variant="contained"

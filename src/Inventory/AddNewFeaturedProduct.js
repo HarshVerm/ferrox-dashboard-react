@@ -87,6 +87,10 @@ export default function AddNewFeaturedProduct(props) {
     });
   };
 
+  const handleAddFeaturedProd = async() =>{
+
+  }
+
   useEffect(() => {
     setFeaturedData(prevState=>{return{...prevState, productId:productId}})
   }, [productId]);
@@ -191,7 +195,7 @@ export default function AddNewFeaturedProduct(props) {
         >
           Cancel
         </Button>
-        <Button variant="contained" color="primary" className={classes.button}>
+        <Button variant="contained" color="primary" className={classes.button} onClick={handleAddFeaturedProd}>
           Add
         </Button>
       </Box>

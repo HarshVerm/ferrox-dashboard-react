@@ -6,6 +6,7 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import { enqueueSnackbar } from "notistack";
 import addNewCollection from "../services/addNewCollection";
+import { CustomButton } from "../Common/CustomButton";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -49,6 +50,8 @@ export default function AddCollection(props) {
     link: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChangeTitle = (event) => {
     if (event.target.value.length <= 50) {
       setCollectionData({ ...collectionData, title: event.target.value });
@@ -62,6 +65,7 @@ export default function AddCollection(props) {
   };
 
   const addCollection = async () => {
+    setLoading(true);
     if (collectionData.title.length > 2) {
       const response = await addNewCollection({
         ...collectionData,
@@ -81,14 +85,17 @@ export default function AddCollection(props) {
         }
       );
     }
+    setLoading(false);
   };
 
-  const handleUpdateCollection = () => {
-    handleUpdate({
+  const handleUpdateCollection = async () => {
+    setLoading(true);
+    await handleUpdate({
       ...collection,
       ...collectionData,
       link: collectionData.title.split(" ").join("-"),
     });
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -141,23 +148,13 @@ export default function AddCollection(props) {
           Cancel
         </Button>
         {!edit ? (
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={addCollection}
-          >
-            Add
-          </Button>
+          <CustomButton loading={loading} onClick={addCollection} label="Add" />
         ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
+          <CustomButton
+            loading={loading}
             onClick={handleUpdateCollection}
-          >
-            Update
-          </Button>
+            label="Update"
+          />
         )}
       </Box>
     </div>

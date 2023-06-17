@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -6,6 +6,7 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import addNewCategory from "../services/addCategory";
 import { enqueueSnackbar } from "notistack";
+import { CustomButton } from "../Common/CustomButton";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -47,6 +48,7 @@ export default function AddCategory(props) {
     description: "",
     link: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChangeCategoryTitle = (event) => {
     if (event.target.value.length < 50) {
@@ -61,6 +63,7 @@ export default function AddCategory(props) {
   };
 
   const addCategory = async () => {
+    setLoading(true);
     if (categoryData.title.length > 2) {
       const response = await addNewCategory({
         ...categoryData,
@@ -80,14 +83,17 @@ export default function AddCategory(props) {
         }
       );
     }
+    setLoading(false);
   };
 
-  const handleUpdateCategory = () => {
-    handleUpdate({
+  const handleUpdateCategory = async () => {
+    setLoading(true);
+    await handleUpdate({
       ...category,
       ...categoryData,
       link: categoryData.title.split(" ").join("-"),
     });
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -140,23 +146,9 @@ export default function AddCategory(props) {
           Cancel
         </Button>
         {!edit ? (
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={addCategory}
-          >
-            Add
-          </Button>
+          <CustomButton loading={loading} onClick={addCategory} label="Add" />
         ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={handleUpdateCategory}
-          >
-            Update
-          </Button>
+          <CustomButton loading={loading} onClick={handleUpdateCategory} label="Update" />
         )}
       </Box>
     </div>
