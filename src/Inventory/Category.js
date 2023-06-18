@@ -17,6 +17,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Switch,
   Table,
   TableBody,
@@ -107,13 +108,14 @@ const Category = (props) => {
   const [editableCategory, setEditableCategory] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [loading, setLoading] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    console.log(event)
+    console.log(event);
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -159,8 +161,10 @@ const Category = (props) => {
   };
 
   const getCategoryList = useCallback(async () => {
+    setLoading(true);
     const listOfCategory = await getAllCategories();
-    if(listOfCategory.categories) setCategoryList(listOfCategory.categories);
+    if (listOfCategory.categories) setCategoryList(listOfCategory.categories);
+    setLoading(false);
   }, []);
 
   const handleDeleteCategory = async (id) => {
@@ -223,36 +227,45 @@ const Category = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {categoryList.length > 0 && categoryList
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((category, _index) => (
-                    <TableRow key={category.id}>
-                      <TableCell>{category.title}</TableCell>
-                      <TableCell>{category.description}</TableCell>
-                      <TableCell>
-                        {
-                          <Switch
-                            checked={category.enabled}
-                            color="primary"
-                            onClick={() => toggleCategoryEnable(category)}
-                          />
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <Box style={{ display: "flex" }}>
-                          <IconButton onClick={() => handleEdit(category)}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handleDeleteCategory(category.id)}
-                            style={{ color: "red" }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  categoryList.length > 0 &&
+                  categoryList
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((category, _index) => (
+                      <TableRow key={category.id}>
+                        <TableCell>{category.title}</TableCell>
+                        <TableCell>{category.description}</TableCell>
+                        <TableCell>
+                          {
+                            <Switch
+                              checked={category.enabled}
+                              color="primary"
+                              onClick={() => toggleCategoryEnable(category)}
+                            />
+                          }
+                        </TableCell>
+                        <TableCell>
+                          <Box style={{ display: "flex" }}>
+                            <IconButton onClick={() => handleEdit(category)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => handleDeleteCategory(category.id)}
+                              style={{ color: "red" }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                )}
               </TableBody>
             </Table>
             <TablePagination
@@ -301,11 +314,13 @@ const Category = (props) => {
       >
         <Fade in={addCategoryModal}>
           <div className={classes.paper}>
-            <AddCategory onClose={closeAddCategory} 
-            edit ={edit}
-            category = {editableCategory}
-            handleUpdate = {handleUpdateCategory}
-            getCategoryList = {getCategoryList}/>
+            <AddCategory
+              onClose={closeAddCategory}
+              edit={edit}
+              category={editableCategory}
+              handleUpdate={handleUpdateCategory}
+              getCategoryList={getCategoryList}
+            />
           </div>
         </Fade>
       </Modal>

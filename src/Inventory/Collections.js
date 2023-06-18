@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -15,6 +14,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   IconButton,
   Switch,
   Table,
@@ -105,6 +105,7 @@ const Collection = (props) => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -132,9 +133,11 @@ const Collection = (props) => {
   };
 
   const getCollectionList = useCallback(async () => {
+    setLoading(true);
     const listOfCollections = await getAllCollections();
-
-    if(listOfCollections.collections)setCollectionList(listOfCollections.collections);
+    if (listOfCollections.collections)
+      setCollectionList(listOfCollections.collections);
+    setLoading(false);
   }, []);
 
   const handleUpdateCollection = async (collection) => {
@@ -161,17 +164,16 @@ const Collection = (props) => {
     handleUpdateCollection(newCollection);
   };
 
-
-  const handleDeleteCollection = async(id)=>{
-    const response = await deleteCollection(id)
-    console.log(response)
+  const handleDeleteCollection = async (id) => {
+    const response = await deleteCollection(id);
+    console.log(response);
     enqueueSnackbar(response.message, {
       variant: response.success ? "success" : "error",
     });
     if (response.success) {
       getCollectionList();
     }
-  }
+  };
 
   useEffect(() => {
     getCollectionList();
@@ -217,33 +219,47 @@ const Collection = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {collectionList.length > 0 && collectionList
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((collection, _index) => (
-                    <TableRow key={collection.id}>
-                      <TableCell>{collection.title}</TableCell>
-                      <TableCell>{collection.description}</TableCell>
-                      <TableCell>
-                        {
-                          <Switch
-                            checked={collection.enabled}
-                            color="primary"
-                            onClick={() => toggleCollectionEnable(collection)}
-                          />
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <Box style={{ display: "flex" }}>
-                          <IconButton onClick={() => handleEdit(collection)}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => handleDeleteCollection(collection.id)} style={{color:"red"}}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  collectionList.length > 0 &&
+                  collectionList
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((collection, _index) => (
+                      <TableRow key={collection.id}>
+                        <TableCell>{collection.title}</TableCell>
+                        <TableCell>{collection.description}</TableCell>
+                        <TableCell>
+                          {
+                            <Switch
+                              checked={collection.enabled}
+                              color="primary"
+                              onClick={() => toggleCollectionEnable(collection)}
+                            />
+                          }
+                        </TableCell>
+                        <TableCell>
+                          <Box style={{ display: "flex" }}>
+                            <IconButton onClick={() => handleEdit(collection)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={() =>
+                                handleDeleteCollection(collection.id)
+                              }
+                              style={{ color: "red" }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                )}
               </TableBody>
             </Table>
             <TablePagination
@@ -289,13 +305,9 @@ const Collection = (props) => {
   );
 };
 
-Collection.defaultProps = {
-  
-};
+Collection.defaultProps = {};
 
-Collection.propTypes = {
-
-};
+Collection.propTypes = {};
 
 function mapStateToProps(state) {
   return {};

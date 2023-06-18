@@ -79,6 +79,7 @@ export default function Media(props) {
                       accept="image/*"
                       onChange={handleImageChange}
                       name={key}
+                      className="inputFile"
                     />
                     <label htmlFor={key} className="upload-button">
                       <div>

@@ -8,6 +8,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import {
   Box,
   Card,
+  CircularProgress,
   IconButton,
   Table,
   TableBody,
@@ -93,6 +94,7 @@ const Featured = (props) => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -104,8 +106,10 @@ const Featured = (props) => {
   };
 
   const getFeaturedList = useCallback(async () => {
+    setLoading(true)
     const listOfFetured = await getAllLandingItems();
     if (listOfFetured.items) setFeaturedList(listOfFetured.items);
+    setLoading(false)
   }, []);
 
   const handleDeleteFeatured = async (id, prodId) => {
@@ -154,7 +158,14 @@ const Featured = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {featuredList.length > 0 &&
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  featuredList.length > 0 &&
                   featuredList
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((featured, _index) => (
@@ -189,7 +200,8 @@ const Featured = (props) => {
                           </Box>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ))
+                )}
               </TableBody>
             </Table>
             <TablePagination

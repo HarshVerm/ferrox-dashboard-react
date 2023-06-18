@@ -3,17 +3,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
-import CancelIcon from "@material-ui/icons/Cancel";
-import AddCircleOutlinedIcon from "@material-ui/icons/AddCircleOutlined";
 import { enqueueSnackbar } from "notistack";
-import {
-  FormControl,
-  Grid,
-  IconButton,
-  MenuItem,
-  Select,
-} from "@material-ui/core";
-import fileToBase64 from "../utils/fileToBase64";
+import { FormControl, Grid, MenuItem, Select } from "@material-ui/core";
+import addLandingPageItems from "../services/addLandingPageItems";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -54,25 +46,31 @@ export default function AddNewFeaturedProduct(props) {
   const [featured, setFeaturedData] = useState({
     productId: "",
     mode: "IMAGE",
-    primaryImage: null,
-    primaryVideo: null,
-    extension: null,
+    primaryDesktopImage: {
+      data: null,
+      extension: null,
+    },
+    primaryDesktopVideo: {
+      data: null,
+      extension: null,
+    },
+    primaryMobileImage: {
+      data: null,
+      extension: null,
+    },
+    primaryMobileVideo: {
+      data: null,
+      extension: null,
+    },
+    webFileName: null,
+    mobileFileName: null,
   });
 
-  const handleAddPrimaryImage = (event) => {
+  const handleAddPrimaryDesktopImage = async (event) => {
     event.persist();
     const file = event.target.files[0];
-    const filePromise = fileToBase64(file);
     const extension = file.name.split(".")[1];
-    Promise.resolve(filePromise).then((base64Images) => {
-      setFeaturedData((prevState) => {
-        return {
-          ...prevState,
-          primaryImage: base64Images.result,
-          extension:extension
-        };
-      });
-    });
+    return { extension, fileName: file.name };
   };
 
   const handleChange = (event) => {
@@ -80,23 +78,121 @@ export default function AddNewFeaturedProduct(props) {
       return {
         ...prevState,
         mode: event.target.value,
-        primaryImage: null,
-        primaryVideo: null,
-        extension: null,
+        primaryDesktopImage: {
+          data: null,
+          extension: null,
+        },
+        primaryDesktopVideo: {
+          data: null,
+          extension: null,
+        },
+        primaryMobileImage: {
+          data: null,
+          extension: null,
+        },
+        primaryMobileVideo: {
+          data: null,
+          extension: null,
+        },
+        webFileName: null,
+        mobileFileName: null,
       };
     });
   };
 
-  const handleAddFeaturedProd = async() =>{
+  const handleChangeForWeb = async (event) => {
+    event.persist();
+    const res = await handleAddPrimaryDesktopImage(event);
+    console.log(res);
+    if (featured.mode === "IMAGE") {
+      setFeaturedData((prevState) => {
+        return {
+          ...prevState,
+          primaryDesktopImage:  {
+            data:event.target.files[0],
+            extension:res.extension
+          },
+          webFileName: res.fileName,
+        };
+      });
+    } else {
+      setFeaturedData((prevState) => {
+        return {
+          ...prevState,
+          primaryDesktopVideo:  {
+            data:event.target.files[0],
+            extension:res.extension
+          },
+          webFileName: res.fileName,
+        };
+      });
+    }
+  };
 
-  }
+  const handleChangeForMobile = async (event) => {
+    event.persist();
+    const res = await handleAddPrimaryDesktopImage(event);
+    if (featured.mode === "IMAGE") {
+      setFeaturedData((prevState) => {
+        return {
+          ...prevState,
+          primaryMobileImage:  {
+            data:event.target.files[0],
+            extension:res.extension
+          },
+          mobileFileName: res.fileName,
+        };
+      });
+    } else {
+      setFeaturedData((prevState) => {
+        return {
+          ...prevState,
+          primaryMobileVideo:  {
+            data:event.target.files[0],
+            extension:res.extension
+          },
+          mobileFileName: res.fileName,
+        };
+      });
+    }
+  };
+
+  const handleAddFeaturedProd = async () => {
+    if (
+      (featured.primaryDesktopImage.data || featured.primaryDesktopVideo.data) &&
+      (featured.primaryMobileImage.data || featured.primaryMobileVideo.data)
+    ) {
+
+      const data = {
+        primaryImageWeb:featured.primaryDesktopImage,
+        primaryImageMobile:featured.primaryMobileImage,
+        primaryVideoWeb: featured.primaryDesktopVideo,
+        primaryVideoMobile:featured.primaryMobileVideo,
+        mode:featured.mode,
+        productId:featured.productId
+      }
+
+      const res = await addLandingPageItems(data)
+      console.log(res)
+      enqueueSnackbar(res.message, {
+        variant: res.success ? "success" : "error",
+      });
+
+    } else {
+      enqueueSnackbar("Please add file for web and mobile.", {
+        variant: "error",
+      });
+    }
+  };
 
   useEffect(() => {
-    setFeaturedData(prevState=>{return{...prevState, productId:productId}})
+    setFeaturedData((prevState) => {
+      return { ...prevState, productId: productId };
+    });
   }, [productId]);
 
   return (
-    <div style={{ maxWidth: "80vw", minWidth: "400px" }}>
+    <div style={{ maxWidth: "60vw", minWidth: "400px" }}>
       <Typography variant="h5" className={classes.title}>
         Featured Product
       </Typography>
@@ -132,10 +228,10 @@ export default function AddNewFeaturedProduct(props) {
               value={featured.mode}
               labelWidth={0}
               inputProps={{
-                name: "category",
-                id: "outlined-category-simple",
+                name: "mode",
+                id: "outlined-mode-simple",
               }}
-              name="category"
+              name="mode"
               onChange={handleChange}
             >
               <MenuItem value="IMAGE">IMAGE</MenuItem>
@@ -143,40 +239,50 @@ export default function AddNewFeaturedProduct(props) {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={12} md={12} lg={12}>
+        <Grid item xs={3} sm={2} md={2} lg={2}>
+          <Typography variant="subtitle1" style={{ lineHeight: 3 }}>
+            Web Version :
+          </Typography>
+        </Grid>
+        <Grid item xs={9} sm={9} md={9} lg={9}>
           <div className="upload-container">
-            {featured.mode === "IMAGE" && !featured.primaryImage ? (
-              <>
-                <input
-                  type="file"
-                  id="primaryImage"
-                  accept="image/*"
-                  onChange={handleAddPrimaryImage}
-                  name="primaryImage"
-                />
-                <label htmlFor="primaryImage" className="upload-button">
-                  <div>
-                    <AddCircleOutlinedIcon style={{ fontSize: "80px" }} />
-                  </div>
-                </label>
-              </>
-            ) : (
-              <div>
-                <div style={{ position: "absolute", right: 0 }}>
-                  <IconButton style={{ color: "black" }}>
-                    <CancelIcon style={{ fontSize: "35px" }} />
-                  </IconButton>
-                </div>
-                <img
-                  src={featured.primaryImage}
-                  style={{
-                    width: "100%",
-                    height: "300px",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
-            )}
+            <input
+              type="file"
+              id="forWeb"
+              accept={featured.mode === "IMAGE" ? "image/*" : "video/mp4"}
+              onChange={handleChangeForWeb}
+              name="forWeb"
+              className="inputFile"
+            />
+            <label htmlFor="forWeb" className="upload-file">
+              <div>Upload File</div>
+              <span style={{ lineHeight: 2.5, padding: "0 10px" }}>
+                {featured.webFileName}
+              </span>
+            </label>
+          </div>
+        </Grid>
+        <Grid item xs={3} sm={2} md={2} lg={2}>
+          <Typography variant="subtitle1" style={{ lineHeight: 3 }}>
+            Mobile Version :
+          </Typography>
+        </Grid>
+        <Grid item xs={9} sm={9} md={9} lg={9}>
+          <div className="upload-container">
+            <input
+              type="file"
+              id="forMobile"
+              accept={featured.mode === "IMAGE" ? "image/*" : "video/mp4"}
+              onChange={handleChangeForMobile}
+              name="forMobile"
+              className="inputFile"
+            />
+            <label htmlFor="forMobile" className="upload-file">
+              <div>Upload File</div>
+              <span style={{ lineHeight: 2.5, padding: "0 10px" }}>
+                {featured.mobileFileName}
+              </span>
+            </label>
           </div>
         </Grid>
       </Grid>
@@ -195,7 +301,12 @@ export default function AddNewFeaturedProduct(props) {
         >
           Cancel
         </Button>
-        <Button variant="contained" color="primary" className={classes.button} onClick={handleAddFeaturedProd}>
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={handleAddFeaturedProd}
+        >
           Add
         </Button>
       </Box>

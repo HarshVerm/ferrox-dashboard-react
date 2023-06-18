@@ -14,6 +14,7 @@ import PageTitle from "./../Common/PageTitle";
 import {
   Box,
   Card,
+  CircularProgress,
   Switch,
   Table,
   TableBody,
@@ -102,6 +103,7 @@ const Inventory = (props) => {
   const [edit, setEdit] = useState(false);
   const [editableProduct, setEditableProduct] = useState({});
   const [addNewFeatureProduct, setAddNewFeatureProduct] = useState(false);
+  const [loading,setLoading]  =useState(false)
 
   const [featureProduct, setFeaturedProduct] = useState({
     productId: null,
@@ -160,9 +162,11 @@ const Inventory = (props) => {
   };
 
   const getProductList = useCallback(async () => {
+    setLoading(true)
     const products = await getAllProducts();
     console.log(products.products);
     if (products.products) setProductList(products.products);
+    setLoading(false)
   }, []);
 
   useEffect(() => {
@@ -202,7 +206,8 @@ const Inventory = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {productList.length > 0 &&
+                {loading ? <TableRow><TableCell colSpan={5} align="center" ><CircularProgress/></TableCell> </TableRow>
+                :    productList.length > 0 &&
                   productList
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((product, _index) => (
@@ -236,6 +241,8 @@ const Inventory = (props) => {
                         </TableCell>
                       </TableRow>
                     ))}
+                
+              
               </TableBody>
             </Table>
             <TablePagination
