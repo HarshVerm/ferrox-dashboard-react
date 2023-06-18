@@ -22,7 +22,7 @@ export default async function addLandingPageItems(item) {
         //NOTE: in case of file path is provided, uncomment this and pass data
         // const data = readFileSync(set)
 
-        return imageUploader(set.data, `${productId}-${_set_index === 0 ? 'primary-image' : 'primary-video'}`, set.extension, 'VIDEO')
+        return imageUploader(set.data, `${productId}-${_set_index === 0 ? 'primary-image' : 'primary-video'}`, set.extension, mode)
     })
 
     return Promise.all(imageUrls).then(async (data) => {
