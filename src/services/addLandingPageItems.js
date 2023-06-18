@@ -27,8 +27,7 @@ export default async function addLandingPageItems(item) {
 
     return Promise.all(imageUrls).then(async (data) => {
 
-        console.log(data)
-        const updatedProduct = { productId: item.productId, id: itemId, ...(mode === 'IMAGE' ? { primaryImageWeb: data[0], primaryImageMobile: data[1] } : { primaryVideoWeb: data[0], primaryVideoMobile: data[1] }) }
+        const updatedProduct = { productId: item.productId, mode: item.mode, id: itemId, ...(mode === 'IMAGE' ? { primaryImageWeb: data[0], primaryImageMobile: data[1] } : { primaryVideoWeb: data[0], primaryVideoMobile: data[1] }) }
         const landingItemRef = doc(fireDb, Models.LANDING_PAGE_ITEM, itemId);
         const productRef = doc(fireDb, Models.PRODUCTS, item.productId);
         await setDoc(landingItemRef, updatedProduct);
