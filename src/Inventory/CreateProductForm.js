@@ -61,6 +61,8 @@ export default function CreateProductForm(props) {
     categoryId: "",
     collectionId: "",
     isFeatured: false,
+    isFeaturedId:null
+
   });
 
   const [images, setImages] = useState({
@@ -215,6 +217,7 @@ export default function CreateProductForm(props) {
         collectionId: product.collectionId,
         title: product.title,
         isFeatured: product.isFeatured,
+        isFeaturedId:product.isFeaturedId,
         priceTag: {
           currency: product.currency,
           value: product.price >= 0 ? product.price : 0,

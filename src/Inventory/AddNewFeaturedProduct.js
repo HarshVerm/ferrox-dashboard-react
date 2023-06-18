@@ -6,6 +6,8 @@ import Typography from "@material-ui/core/Typography";
 import { enqueueSnackbar } from "notistack";
 import { FormControl, Grid, MenuItem, Select } from "@material-ui/core";
 import addLandingPageItems from "../services/addLandingPageItems";
+import fileToBase64 from "../utils/fileToBase64";
+import { CustomButton } from "../Common/CustomButton";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -40,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AddNewFeaturedProduct(props) {
-  const { productId, productName } = props;
+  const { productId, productName ,getProductList} = props;
   const classes = useStyles();
 
   const [featured, setFeaturedData] = useState({
@@ -65,12 +67,20 @@ export default function AddNewFeaturedProduct(props) {
     webFileName: null,
     mobileFileName: null,
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleAddPrimaryDesktopImage = async (event) => {
+  const handleFile = async (event) => {
     event.persist();
     const file = event.target.files[0];
     const extension = file.name.split(".")[1];
-    return { extension, fileName: file.name };
+
+    if (featured.mode === "IMAGE") {
+      const filePromise = fileToBase64(file);
+      const res = await Promise.resolve(filePromise);
+      return { extension, fileName: file.name, data: res.result };
+    }
+
+    return { extension, fileName: file.name, data: null };
   };
 
   const handleChange = (event) => {
@@ -102,15 +112,15 @@ export default function AddNewFeaturedProduct(props) {
 
   const handleChangeForWeb = async (event) => {
     event.persist();
-    const res = await handleAddPrimaryDesktopImage(event);
+    const res = await handleFile(event);
     console.log(res);
     if (featured.mode === "IMAGE") {
       setFeaturedData((prevState) => {
         return {
           ...prevState,
-          primaryDesktopImage:  {
-            data:event.target.files[0],
-            extension:res.extension
+          primaryDesktopImage: {
+            data: res.data,
+            extension: res.extension,
           },
           webFileName: res.fileName,
         };
@@ -119,9 +129,9 @@ export default function AddNewFeaturedProduct(props) {
       setFeaturedData((prevState) => {
         return {
           ...prevState,
-          primaryDesktopVideo:  {
-            data:event.target.files[0],
-            extension:res.extension
+          primaryDesktopVideo: {
+            data: event.target.files[0],
+            extension: res.extension,
           },
           webFileName: res.fileName,
         };
@@ -131,14 +141,14 @@ export default function AddNewFeaturedProduct(props) {
 
   const handleChangeForMobile = async (event) => {
     event.persist();
-    const res = await handleAddPrimaryDesktopImage(event);
+    const res = await handleFile(event);
     if (featured.mode === "IMAGE") {
       setFeaturedData((prevState) => {
         return {
           ...prevState,
-          primaryMobileImage:  {
-            data:event.target.files[0],
-            extension:res.extension
+          primaryMobileImage: {
+            data: res.data,
+            extension: res.extension,
           },
           mobileFileName: res.fileName,
         };
@@ -147,9 +157,9 @@ export default function AddNewFeaturedProduct(props) {
       setFeaturedData((prevState) => {
         return {
           ...prevState,
-          primaryMobileVideo:  {
-            data:event.target.files[0],
-            extension:res.extension
+          primaryMobileVideo: {
+            data: event.target.files[0],
+            extension: res.extension,
           },
           mobileFileName: res.fileName,
         };
@@ -158,31 +168,35 @@ export default function AddNewFeaturedProduct(props) {
   };
 
   const handleAddFeaturedProd = async () => {
+    setLoading(true);
     if (
-      (featured.primaryDesktopImage.data || featured.primaryDesktopVideo.data) &&
+      (featured.primaryDesktopImage.data ||
+        featured.primaryDesktopVideo.data) &&
       (featured.primaryMobileImage.data || featured.primaryMobileVideo.data)
     ) {
-
       const data = {
-        primaryImageWeb:featured.primaryDesktopImage,
-        primaryImageMobile:featured.primaryMobileImage,
+        primaryImageWeb: featured.primaryDesktopImage,
+        primaryImageMobile: featured.primaryMobileImage,
         primaryVideoWeb: featured.primaryDesktopVideo,
-        primaryVideoMobile:featured.primaryMobileVideo,
-        mode:featured.mode,
-        productId:featured.productId
-      }
+        primaryVideoMobile: featured.primaryMobileVideo,
+        mode: featured.mode,
+        productId: featured.productId,
+      };
 
-      const res = await addLandingPageItems(data)
-      console.log(res)
+      const res = await addLandingPageItems(data);
+      console.log(res);
       enqueueSnackbar(res.message, {
         variant: res.success ? "success" : "error",
       });
-
+      if(res.success){
+        getProductList()
+      }
     } else {
       enqueueSnackbar("Please add file for web and mobile.", {
         variant: "error",
       });
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -301,14 +315,11 @@ export default function AddNewFeaturedProduct(props) {
         >
           Cancel
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.button}
+        <CustomButton
           onClick={handleAddFeaturedProd}
-        >
-          Add
-        </Button>
+          loading={loading}
+          label="Add"
+        />
       </Box>
     </div>
   );

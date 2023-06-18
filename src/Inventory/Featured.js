@@ -110,10 +110,10 @@ const Featured = (props) => {
     const listOfFetured = await getAllLandingItems();
     if (listOfFetured.items) setFeaturedList(listOfFetured.items);
     setLoading(false)
+    console.log(listOfFetured)
   }, []);
 
   const handleDeleteFeatured = async (id, prodId) => {
-    console.log(id);
     const response = await deleteLandingItem(id, prodId);
     console.log(response);
     enqueueSnackbar(response.message, {
@@ -139,7 +139,7 @@ const Featured = (props) => {
           }}
         >
           <Box style={{ display: "flex" }}>
-            <PageTitle title="Collection" />
+            <PageTitle title="Featured Product" />
             <div
               className={classes.action}
               style={{ marginTOp: 0, lineHeight: 6 }}
@@ -153,7 +153,8 @@ const Featured = (props) => {
                     Featured ID
                   </TableCell>
                   <TableCell style={{ fontWeight: "bold" }}>Mode</TableCell>
-                  <TableCell style={{ fontWeight: "bold" }}>URL</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Web URL</TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>Mobile URL</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}></TableCell>
                 </TableRow>
               </TableHead>
@@ -176,8 +177,20 @@ const Featured = (props) => {
                           <a
                             href={
                               featured.mode === "IMAGE"
-                                ? featured.primaryImage
-                                : featured.primaryVideo
+                                ? featured.primaryImageWeb
+                                : featured.primaryVideoWeb
+                            }
+                            target="_blank"
+                          >
+                            Click Here
+                          </a>
+                        </TableCell>
+                        <TableCell>
+                          <a
+                            href={
+                              featured.mode === "IMAGE"
+                                ? featured.primaryImageMobile
+                                : featured.primaryVideoMobile
                             }
                             target="_blank"
                           >

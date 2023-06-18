@@ -29,6 +29,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { enqueueSnackbar } from "notistack";
 import deleteProduct from "../services/deleteProduct";
 import AddNewFeaturedProduct from "./AddNewFeaturedProduct";
+import deleteLandingItem from "../services/deleteLandingItem";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -161,6 +162,17 @@ const Inventory = (props) => {
     }
   };
 
+  const handleDeleteFeatured = async (id, prodId) => {
+    console.log(id,prodId)
+    const response = await deleteLandingItem(id, prodId);
+    enqueueSnackbar(response.message, {
+      variant: response.success ? "success" : "error",
+    });
+    if (response.success) {
+      getProductList();
+    }
+  };
+
   const getProductList = useCallback(async () => {
     setLoading(true)
     const products = await getAllProducts();
@@ -220,7 +232,7 @@ const Inventory = (props) => {
                             <Switch
                               checked={product.isFeatured ? true : false}
                               color="primary"
-                              onClick={() => openNewFeatureProduct(product.title,product.productId)}
+                              onClick={() => !product.isFeatured ? openNewFeatureProduct(product.title,product.productId) : handleDeleteFeatured(product.isFeaturedId,product.productId )}
                             />
                           }
                         </TableCell>
@@ -299,7 +311,7 @@ const Inventory = (props) => {
       >
         <Fade in={addNewFeatureProduct}>
           <div className={classes.paper}>
-            <AddNewFeaturedProduct  onClose={closeNewFeatureProduct} productId ={featureProduct.productId} productName = {featureProduct.productName}/>
+            <AddNewFeaturedProduct  onClose={closeNewFeatureProduct} productId ={featureProduct.productId} productName = {featureProduct.productName} getProductList = {getProductList}/>
           </div>
         </Fade>
       </Modal>
