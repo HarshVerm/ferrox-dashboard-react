@@ -15,7 +15,7 @@ export default async function addNewProducts(product) {
         //NOTE: in case of file path is provided, uncomment this and pass data
         // const data = readFileSync(set)
 
-        return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension)
+        return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension, 'IMAGE')
     })
 
 

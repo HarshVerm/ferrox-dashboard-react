@@ -14,16 +14,17 @@ function dataURLtoFile(dataurl, filename) {
 }
 
 
-export default async function imageUploader(file, uuid, extension) {
+export default async function imageUploader(file, uuid, extension, mode) {
     try {
         const fileLocation = `products/${uuid}.${extension}`
         const storage = getStorage();
         const imagesRef = ref(storage, fileLocation);
 
-        const uploadableFile = dataURLtoFile(file, `${uuid}.${extension}`)
+        const uploadableFile = mode === 'VIDEO' ? file : dataURLtoFile(file, `${uuid}.${extension}`)
+        const contentType = mode === 'VIDEO' ? 'video/mp4' : 'image/jpeg'
 
         return new Promise((resolve, reject) => {
-            uploadBytes(imagesRef, uploadableFile, { contentType: 'image/jpeg', }).then(snapshot => {
+            uploadBytes(imagesRef, uploadableFile, { contentType: contentType }).then(snapshot => {
                 return getDownloadURL(snapshot.ref)
             }).then(downloadURL => {
                 resolve(downloadURL)
@@ -35,7 +36,7 @@ export default async function imageUploader(file, uuid, extension) {
 
 
     } catch (e) {
-        console.error(JSON.stringify(e))
+        console.error(e)
     }
 }
 

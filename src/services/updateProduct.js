@@ -23,17 +23,17 @@ export default async function updateProduct(product) {
 
     const filteredPromisesTobe = selectedImages.filter((image) => !isUrl(image.data))
     const existingUrls = selectedImages.filter((image) => isUrl(image.data))
-    const filteredExistingUrls = existingUrls.map(item=>item.data)
+    const filteredExistingUrls = existingUrls.map(item => item.data)
     const imageUrls = filteredPromisesTobe.map(async (set, _set_index) => {
         //NOTE: in case of file path is provided, uncomment this and pass data
         // const data = readFileSync(set)
 
-        return imageUploader(set.data, `${product.productId}-${_set_index + 1}`, set.extension)
+        return imageUploader(set.data, `${product.productId}-${_set_index + 1}`, set.extension, 'IMAGE')
     })
 
     return Promise.all([...imageUrls]).then(async (images) => {
         const updatedImages = [...filteredExistingUrls, ...images]
-        const updatedProduct = { ...product, images: updatedImages,productPrimaryImage:updatedImages[0] }
+        const updatedProduct = { ...product, images: updatedImages, productPrimaryImage: updatedImages[0] }
         const updateProductRef = doc(fireDb, Models.PRODUCTS, product.productId);
 
         await updateDoc(updateProductRef, {

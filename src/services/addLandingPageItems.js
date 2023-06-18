@@ -7,6 +7,7 @@ import { fireDb } from "../firebase/client"
 
 export default async function addLandingPageItems(item) {
 
+    console.log(item)
     if (!item || !item.productId) {
         return { success: false, message: 'Payload missing some values' }
     }
@@ -21,10 +22,12 @@ export default async function addLandingPageItems(item) {
         //NOTE: in case of file path is provided, uncomment this and pass data
         // const data = readFileSync(set)
 
-        return imageUploader(set, `${productId}-${_set_index === 0 ? 'primary-image' : 'primary-video'}`, set.extension)
+        return imageUploader(set.data, `${productId}-${_set_index === 0 ? 'primary-image' : 'primary-video'}`, set.extension, 'VIDEO')
     })
 
     return Promise.all(imageUrls).then(async (data) => {
+
+        console.log(data)
         const updatedProduct = { ...item, id: itemId, ...(mode === 'IMAGE' ? { primaryImageWeb: data[0], primaryImageMobile: data[1] } : { primaryVideoWeb: data[0], primaryVideoMobile: data[1] }) }
         const landingItemRef = doc(fireDb, Models.LANDING_PAGE_ITEM, itemId);
         const productRef = doc(fireDb, Models.PRODUCTS, item.productId);
