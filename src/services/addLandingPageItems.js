@@ -33,7 +33,8 @@ export default async function addLandingPageItems(item) {
         const productRef = doc(fireDb, Models.PRODUCTS, item.productId);
         await setDoc(landingItemRef, updatedProduct);
         await updateDoc(productRef, {
-            isFeatured: true
+            isFeatured: true,
+            isFeaturedId: itemId
         });
 
 
