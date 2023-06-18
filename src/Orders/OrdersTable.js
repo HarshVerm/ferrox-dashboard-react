@@ -1,29 +1,28 @@
-import React from "react";
 import clsx from "clsx";
+import React, { useState } from "react";
 
+import Chip from "@material-ui/core/Chip";
+import blue from "@material-ui/core/colors/blue";
+import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import Chip from "@material-ui/core/Chip";
-import blue from "@material-ui/core/colors/blue";
-import grey from "@material-ui/core/colors/grey";
 
-import { getThemeProps } from "@material-ui/styles";
+import ConfirmedIcon from "@material-ui/icons/AssignmentLate";
+import CachedIcon from "@material-ui/icons/Cached";
 import DoneIcon from "@material-ui/icons/Done";
 import ErrorIcon from "@material-ui/icons/Error";
-import CachedIcon from "@material-ui/icons/Cached";
-import ConfirmedIcon from "@material-ui/icons/AssignmentLate";
+import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import ShippingIcon from "@material-ui/icons/LocalShipping";
 import PackingIcon from "@material-ui/icons/MoveToInbox";
 import UnfoldMoreIcon from "@material-ui/icons/UnfoldMore";
-import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Typography, Box, IconButton } from "@material-ui/core";
-import { Pagination } from "@material-ui/lab";
+import { Box, CircularProgress, IconButton, Typography } from "@material-ui/core";
+import TablePagination from '@material-ui/core/TablePagination';
+import { getAllOrders } from "../services/getAllOrders";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -99,15 +98,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SimpleTable(props) {
+
+  const { orders, setOrders, loading } = props
   const classes = useStyles();
-
-  const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
-  React.useEffect(() => {
-    // props.dispatch(fetchProducts());
-    setLastUpdatedTime(`${new Date().toLocaleString()}`);
-  }, []);
-
-  const [data, setData] = React.useState(props.orders);
 
   /* -1: unsorted/unused
       0: is NOT ascending
@@ -118,7 +111,7 @@ export default function SimpleTable(props) {
   });
 
   const sortById = () => {
-    const dataset = [...data];
+    const dataset = [...orders];
 
     if (sortData.id < 1) {
       console.log("Unsorted. Sorting By Ascending");
@@ -137,17 +130,22 @@ export default function SimpleTable(props) {
         id: 0,
       });
     }
-    setData(dataset);
+    setOrders(dataset);
+  };
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  // Placeholder hooks for pagination.
-  const [page, setPage] = React.useState(1);
-  const handleChange = (event, value) => {
-    setPage(value);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
   };
 
   function StatusChip(props) {
-    if (props.status === "Paid") {
+    if (props.status === "PAID") {
       return <Typography variant="body2">Paid</Typography>;
     } else {
       return (
@@ -288,58 +286,65 @@ export default function SimpleTable(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
-              <TableRow
-                key={row.orderId}
-                className={classes.tableRow}
-                onClick={(row) =>
-                  props.pageControl({
-                    manage: true,
-                    orderDetails: data[index],
-                    root: false,
-                    purchaseOrder: false,
-                  })
-                }
-              >
-                <TableCell component="th" scope="row">
-                  {row.orderId}
-                </TableCell>
-                <TableCell align="left">{row.created}</TableCell>
-                <TableCell align="left">{`${row.firstName} ${row.lastName}`}</TableCell>
-                <TableCell align="left">{row.email}</TableCell>
-                <TableCell align="left">
-                  <Fulfillment fulfillment={row.fulfillment} />
-                </TableCell>
-                <TableCell align="left">{row.total}</TableCell>
-                <TableCell align="left">
-                  <StatusChip status={row.status} />
-                </TableCell>
-                <TableCell align="left">{row.updated}</TableCell>
-                <TableCell align="left">
-                  <IconButton size="small" aria-label="settings">
-                    <KeyboardArrowRightIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {loading ? <TableRow>
+              <TableCell align="center" colSpan={8}>
+                <CircularProgress color="primary" />
+              </TableCell>
+            </TableRow>
+              : orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                <TableRow
+                  key={row.orderId}
+                  className={classes.tableRow}
+                // onClick={(row) =>
+                //   props.pageControl({
+                //     manage: true,
+                //     orderDetails: orders[index],
+                //     root: false,
+                //     purchaseOrder: false,
+                //   })
+                // }
+                >
+                  <TableCell component="th" scope="row">
+                    {row.orderId}
+                  </TableCell>
+                  <TableCell align="left">{new Date(row.createdAt).toLocaleString()}</TableCell>
+                  <TableCell align="left">{row.customerName}</TableCell>
+                  <TableCell align="left">{row.customerEmail}</TableCell>
+                  <TableCell align="left">
+                    <Fulfillment fulfillment="Shipped" />
+                  </TableCell>
+                  <TableCell align="left">INR {row.totalAmount}</TableCell>
+                  <TableCell align="left">
+                    <StatusChip status={row.paymentStatus} />
+                  </TableCell>
+                  <TableCell align="left">{new Date(row.createdAt).toLocaleString()}</TableCell>
+                  <TableCell align="left">
+                    <IconButton size="small" aria-label="settings">
+                      <KeyboardArrowRightIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </Paper>
       <div style={{ width: "100%", marginTop: "1em" }}>
         <Box display="flex">
           <Box width="50%">
-            {/* <Typography className={classes.tableFoot}>
-              1-{data.length} of {Math.floor(Math.random() * 100)} results
-            </Typography> */}
-            <Pagination count={10} page={page} onChange={handleChange} />
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 100]}
+              component="div"
+              count={orders.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+              sx={{ color: 'text.secondary' }}
+            />
           </Box>
-          <Box width="50%" textAlign="right">
-            <Typography className={classes.tableFoot}>
-              Orders up to date. Last retrieved at {lastUpdatedTime}
-            </Typography>
-          </Box>
+
         </Box>
       </div>
-    </React.Fragment>
+    </React.Fragment >
   );
 }

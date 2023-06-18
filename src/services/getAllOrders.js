@@ -1,6 +1,5 @@
 
 
-e
 
 import { collection, getDocs, query } from 'firebase/firestore'
 
@@ -32,7 +31,7 @@ export const getAllOrders = async () => {
             return item.data()
         })
 
-        const products = metaData
+        const orders = metaData
         failedResponse.success = true
         failedResponse.orders = orders
         return failedResponse

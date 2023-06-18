@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { FETCH_PRODUCTS_SUCCESS, FETCH_PRODUCTS_ERROR, FETCH_PRODUCTS_PENDING } from './types/types';
-
+import { getAllOrders } from '../../services/getAllOrders'
 const URL = 'http://localhost:8080';
 
 export function fetchProductsPending() {
@@ -9,10 +9,10 @@ export function fetchProductsPending() {
   }
 }
 
-export function fetchProductsSuccess(products) {
+export function fetchProductsSuccess(orders) {
   return {
     type: FETCH_PRODUCTS_SUCCESS,
-    products
+    orders
   }
 }
 
@@ -27,10 +27,9 @@ export function fetchProducts() {
   return async (dispatch) => {
     try {
       dispatch(fetchProductsPending());
-      const res = await axios.get(`${URL}/products`);
-      if (res.data && res.status === 200) {
-        console.log(res);
-        dispatch(fetchProductsSuccess(res.data))
+      const res = await getAllOrders()
+      if (res.success && res.orders) {
+        dispatch(fetchProductsSuccess(res.orders))
       }
     } catch (error) {
       dispatch(fetchProductsError(error));

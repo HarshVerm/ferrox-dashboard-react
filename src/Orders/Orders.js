@@ -1,27 +1,21 @@
-import React from "react";
-import { Route } from "react-router-dom";
-import faker from "faker";
-import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
+import faker from "faker";
+import React from "react";
+import { connect } from "react-redux";
 import { fetchProducts } from "../store/actions/products";
 
 import {
-  IconButton,
-  Button,
-  Container,
-  Box,
-  Tooltip,
+  Box, Container, FormControl, IconButton, InputAdornment, InputLabel,
+  OutlinedInput
 } from "@material-ui/core/";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import SortIcon from "@material-ui/icons/Sort";
-import SearchIcon from "@material-ui/icons/Search";
-import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import blue from "@material-ui/core/colors/blue";
+import CloseIcon from '@material-ui/icons/Close';
 
-import OrdersTable from "./OrdersTable";
-import Manage from "./Manage/Manage";
-import DraftOrder from "./DraftOrder";
 import PageTitle from "./../Common/PageTitle";
+import DraftOrder from "./DraftOrder";
+import Manage from "./Manage/Manage";
+import OrdersTable from "./OrdersTable";
+import { getAllOrders } from "../services/getAllOrders";
 
 const drawerWidth = 210;
 
@@ -146,7 +140,6 @@ const populate = (n) => {
   return data;
 };
 
-const ordersData = populate(8);
 
 const Orders = (props) => {
   const classes = useStyles();
@@ -158,6 +151,8 @@ const Orders = (props) => {
     root: true,
   });
 
+  const [searchText, setSearchText] = React.useState('')
+
   const openDraftOrder = () => {
     setPageControl({
       manage: false,
@@ -167,52 +162,75 @@ const Orders = (props) => {
     });
   };
 
-  const [lastUpdatedTime, setLastUpdatedTime] = React.useState("N/A");
+
+  const [orders, setOrders] = React.useState([])
+
+  const [filteredOrders, setFilteredOrders] = React.useState([])
+
+  const [loading, setLoading] = React.useState(true)
+
+
+  async function fetchOrders() {
+    setLoading(true)
+    const res = await getAllOrders()
+    if (res.success && res.orders) {
+      setOrders(res.orders)
+      setFilteredOrders(res.orders)
+      setLoading(false)
+    }
+  }
 
   React.useEffect(() => {
-    props.dispatch(fetchProducts());
-    setLastUpdatedTime(`${new Date().toLocaleString()}`);
+    fetchOrders()
   }, []);
+
+  function clearSearch() {
+    setSearchText('')
+    setFilteredOrders(orders)
+  }
+
+  function handleSearch(e) {
+    setSearchText(e.target.value)
+    e.target.value.trim().length > 2 && setFilteredOrders(orders.filter((order) => order.orderId === e.target.value))
+  }
+
+
+
+
 
   const OrdersMain = (props) => {
     return (
       <Container maxWidth="lg">
         <PageTitle title="Orders" />
-        <Box display="flex" flexGrow={1}>
-          <Tooltip title="Filter" placement="top">
-            <IconButton className={classes.iconButton}>
-              <SortIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Refresh" placement="top">
-            <IconButton className={classes.iconButton}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Search" placement="top">
-            <IconButton className={classes.iconButton}>
-              <SearchIcon />
-            </IconButton>
-          </Tooltip>
-          <Box
-            display="flex"
-            flexGrow={1}
-            justifyContent="flex-end"
-            alignItems="center"
-          >
-            <Tooltip title="Create Draft Order" placement="top">
-              <Button
-                className={classes.button}
-                color="primary"
-                onClick={openDraftOrder}
-              >
-                <PlaylistAddIcon className={classes.icon} />
-              </Button>
-            </Tooltip>
-          </Box>
+        <Box display="flex" flexGrow={1} paddingBottom={3}>
+
+          <FormControl variant="outlined" size='small' style={{ minWidth: '400px' }}>
+            <InputLabel htmlFor="outlined-adornment-password">Search order</InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={'text'}
+              value={searchText}
+              onChange={handleSearch}
+              endAdornment={
+                <InputAdornment position="end">
+                  {searchText.trim().length ?
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={clearSearch}
+
+                      edge="end"
+                    >
+                      <CloseIcon />
+                    </IconButton> : null
+                  }
+                </InputAdornment>
+              }
+              labelWidth={70}
+            />
+          </FormControl>
         </Box>
-        <Route />
-        <OrdersTable orders={ordersData} pageControl={setPageControl} />
+
+        <OrdersTable orders={filteredOrders} setOrders={setFilteredOrders} pageControl={setPageControl} loading={loading} />
       </Container>
     );
   };

@@ -268,9 +268,8 @@ function App(props) {
                   <Route path="/dashboard/collection" component={Collections} />
                   <Route path="/dashboard/featured" component={Featured} />
                   <Route path="/dashboard/board" component={Board} />
-                  <PrivateRoute
+                  <Route
                     path="/dashboard/orders"
-                    authed={isAuthenticated}
                     component={Orders}
                   />
                   <Route
