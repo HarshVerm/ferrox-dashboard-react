@@ -7,7 +7,6 @@ import { fireDb } from "../firebase/client"
 
 export default async function addLandingPageItems(item) {
 
-    console.log(item)
     if (!item || !item.productId) {
         return { success: false, message: 'Payload missing some values' }
     }
