@@ -37,6 +37,7 @@ export default async function getOrderDetails(orderId) {
         const products = metaData
 
         response.orderDetails = { ...order, items: products }
+        response.success = true
         response.message = 'Order details fetched successfully.'
         return response
 
