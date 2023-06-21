@@ -23,6 +23,7 @@ import UnfoldMoreIcon from "@material-ui/icons/UnfoldMore";
 import { Box, CircularProgress, IconButton, Typography } from "@material-ui/core";
 import TablePagination from '@material-ui/core/TablePagination';
 import { getAllOrders } from "../services/getAllOrders";
+import { useHistory} from "react-router-dom"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -143,6 +144,7 @@ export default function SimpleTable(props) {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+  const history = useHistory()
 
   function StatusChip(props) {
     if (props.status === "PAID") {
@@ -238,6 +240,13 @@ export default function SimpleTable(props) {
     }
   }
 
+  const handleRedirect =(orderId)=>{
+    console.log(orderId)
+    if(orderId){
+      history.push(`/dashboard/orderDetails/${orderId}`)
+    }
+  }
+
   return (
     <React.Fragment>
       <Paper className={classes.root}>
@@ -303,6 +312,7 @@ export default function SimpleTable(props) {
                 //     purchaseOrder: false,
                 //   })
                 // }
+                onClick ={()=>handleRedirect(row.orderId)}
                 >
                   <TableCell component="th" scope="row">
                     {row.orderId}
