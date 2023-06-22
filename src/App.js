@@ -29,15 +29,13 @@ import Settings from "./Settings/Settings";
 import Board from "./Board/Board";
 import Login from "./Login/Login";
 import Team from "./Team/Team";
-
 import PrivateRoute from "./Common/PrivateRoute";
 import getAvatar from "./Common/AnimalAvatars";
-
 import "./App.css";
-import MonkeyAvatar from "../src/Common/img/avatars/monkey.png";
 import Category from "./Inventory/Category";
 import Collections from "./Inventory/Collections";
 import Featured from "./Inventory/Featured";
+import OrderDetails from "./Orders/OrderDetails";
 
 const useStyles = makeStyles({
   root: {
@@ -269,9 +267,11 @@ function App(props) {
                   <Route path="/dashboard/featured" component={Featured} />
                   <Route path="/dashboard/board" component={Board} />
                   <Route
-                    path="/dashboard/orders"
-                    component={Orders}
+                    path="/dashboard/orderDetails/:orderId"
+                    component={OrderDetails}
+                    exact={true}
                   />
+                  <Route path="/dashboard/orders" component={Orders} />
                   <Route
                     path="/dashboard/home"
                     authed={isAuthenticated}
@@ -282,6 +282,14 @@ function App(props) {
                     authed={isAuthenticated}
                     component={Team}
                   />
+                  <Route
+                    path="/dashboard/team"
+                    authed={isAuthenticated}
+                    component={Team}
+                  />
+                  <Route path="*">
+                    <Redirect to="/dashboard/home" />
+                  </Route>
                 </Switch>
               </Fragment>
             )}

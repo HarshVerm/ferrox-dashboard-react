@@ -163,7 +163,6 @@ const Inventory = (props) => {
   };
 
   const handleDeleteFeatured = async (id, prodId) => {
-    console.log(id,prodId)
     const response = await deleteLandingItem(id, prodId);
     enqueueSnackbar(response.message, {
       variant: response.success ? "success" : "error",
@@ -176,7 +175,6 @@ const Inventory = (props) => {
   const getProductList = useCallback(async () => {
     setLoading(true)
     const products = await getAllProducts();
-    console.log(products.products);
     if (products.products) setProductList(products.products);
     setLoading(false)
   }, []);
