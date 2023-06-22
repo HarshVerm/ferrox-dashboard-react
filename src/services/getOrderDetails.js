@@ -36,7 +36,11 @@ export default async function getOrderDetails(orderId) {
 
         const products = metaData
 
-        response.orderDetails = { ...order, items: products }
+        response.orderDetails = {
+            ...order, items: order.items.map((item) => {
+                return { ...item, moreDetails: products.filter((p) => p.productId === item.productId)[0] || {} }
+            })
+        }
         response.success = true
         response.message = 'Order details fetched successfully.'
         return response
@@ -47,3 +51,5 @@ export default async function getOrderDetails(orderId) {
         return response
     }
 }
+
+
