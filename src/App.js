@@ -196,7 +196,7 @@ function App(props) {
                     textColor="primary"
                   >
                     <Tab
-                      label="Dashboards"
+                      label="Active Users"
                       value="/dashboard/home"
                       component={Link}
                       to="/dashboard/home"

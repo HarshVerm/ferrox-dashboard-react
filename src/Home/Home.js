@@ -10,11 +10,13 @@ import ChangePassword from '../Common/img/change-password.png';
 import ManageAccounts from '../Common/img/manage-accounts.png';
 import ProductInformation from '../Common/img/product-information.png';
 import ProductStock from '../Common/img/product-stock.png';
+import UsersTable from './UsersTable';
+import PageTitle from '../Common/PageTitle';
 
 const useStyles = makeStyles(theme => ({
   container: {
     marginBottom: '5em',
-    marginTop:"2em"
+    marginTop: "2em"
   },
   title: {
     fontFamily: 'ApercuMedium',
@@ -30,37 +32,14 @@ function Home(props) {
   return (
     <Container className={classes.container} maxWidth="lg" >
       <Grid container spacing={2} >
-        <Grid item xs={3}>
-          <Card
-            title="Orders"
-            button="Manage Orders"
-            description="View and update orders. Find orders by email or order ID."
-            route="/dashboard/orders"
-            image={Orders}
-          />
-        </Grid>
-       
-        <Grid item xs={3}>
-          <Card
-            title="Products"
-            button="Update Product Information"
-            description="Update products name, type, description, etc."
-            route="/dashboard/products"
-            image={ProductInformation}
-          />
-        </Grid>
-        <Grid item xs={3}>
-          <Card
-            title="User Accounts"
-            button="Manage User Accounts"
-            description="Create or remove accounts that have access to this dashboard."
-            route="/settings"
-            image={ManageAccounts}
-          />
+        <Grid item lg={12}>
+          <PageTitle title="Active Users" />
+          <UsersTable />
+
         </Grid>
 
       </Grid>
-   
+
     </Container>
   );
 }
