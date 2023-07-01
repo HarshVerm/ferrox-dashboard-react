@@ -56,12 +56,13 @@ export default function CreateProductForm(props) {
     collection: "",
     highlights: "",
     currency: "INR",
-    price: 1,
+    mrpPrice: 1,
+    sellingPrice: 1,
     returnAndExchange: false,
     categoryId: "",
     collectionId: "",
     isFeatured: false,
-    isFeaturedId:null
+    isFeaturedId: null
 
   });
 
@@ -170,7 +171,8 @@ export default function CreateProductForm(props) {
         collection: product.collection,
         collectionId: product.collectionId,
         title: product.title,
-        priceTag: { currency: product.currency, value: product.price },
+        mrpPrice: { currency: product.currency, value: product.mrpPrice },
+        sellingPrice: { currency: product.currency, value: product.sellingPrice },
         description: product.description,
         inStock: stock,
         highlights: product.highlights,
@@ -217,7 +219,7 @@ export default function CreateProductForm(props) {
         collectionId: product.collectionId,
         title: product.title,
         isFeatured: product.isFeatured,
-        isFeaturedId:product.isFeaturedId,
+        isFeaturedId: product.isFeaturedId,
         priceTag: {
           currency: product.currency,
           value: product.price >= 0 ? product.price : 0,

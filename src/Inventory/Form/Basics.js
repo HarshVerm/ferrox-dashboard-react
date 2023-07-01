@@ -214,7 +214,7 @@ export default function Basics(props) {
           <Grid item xs={7} sm={7} md={7} lg={7}>
           <TextField
                 id="outlined-multiline-static"
-                label="Price"
+                label="MRP Price"
                 value={product.price}
                 onChange={handleChangeProductDetails}
                 className={classes.textField}
@@ -224,9 +224,27 @@ export default function Basics(props) {
                 InputProps={{
                   inputProps: { min: 1 },
                 }}
-                name="price"
+                name="mrpPrice"
               />
           </Grid>
+
+          <Grid item xs={7} sm={7} md={7} lg={7}>
+          <TextField
+                id="outlined-multiline-static"
+                label="Selling Price"
+                value={product.price}
+                onChange={handleChangeProductDetails}
+                className={classes.textField}
+                margin="normal"
+                variant="outlined"
+                type="text"
+                InputProps={{
+                  inputProps: { min: 1 },
+                }}
+                name="sellingPrice"
+              />
+          </Grid>
+
 
         </Grid>
         <Grid item xs={12}>
