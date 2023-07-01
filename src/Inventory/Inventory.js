@@ -224,7 +224,7 @@ const Inventory = (props) => {
                       <TableRow key={product.productId}>
                         <TableCell>{product.title}</TableCell>
                         <TableCell>{product.description}</TableCell>
-                        <TableCell>{product.priceTag.value}</TableCell>
+                        <TableCell>{product.mrpPrice.value}</TableCell>
                         <TableCell>
                           {
                             <Switch

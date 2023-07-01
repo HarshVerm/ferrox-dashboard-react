@@ -220,9 +220,13 @@ export default function CreateProductForm(props) {
         title: product.title,
         isFeatured: product.isFeatured,
         isFeaturedId: product.isFeaturedId,
-        priceTag: {
+        mrpPrice: {
           currency: product.currency,
-          value: product.price >= 0 ? product.price : 0,
+          value: product.mrpPrice >= 0 ? product.mrpPrice : 0,
+        },
+        sellingPrice: {
+          currency: product.currency,
+          value: product.sellingPrice >= 0 ? product.sellingPrice : 0
         },
         description: product.description,
         inStock: stock,
@@ -259,8 +263,9 @@ export default function CreateProductForm(props) {
         description: editableProduct.description,
         collection: editableProduct.collection,
         highlights: editableProduct.highlights,
-        currency: editableProduct.priceTag.currency,
-        price: editableProduct.priceTag.value,
+        currency: editableProduct.mrpPrice.currency,
+        mrpPrice: editableProduct.mrpPrice.value,
+        sellingPrice: editableProduct.sellingPrice.value,
         returnAndExchange: editableProduct.returnAndExchange.accepted,
         categoryId: editableProduct.categoryId,
         collectionId: editableProduct.collectionId,
