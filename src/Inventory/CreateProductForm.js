@@ -238,9 +238,7 @@ export default function CreateProductForm(props) {
           windowMessage: "Return or exchange within 30 days of purchase.",
         },
       };
-      console.log("Update", data);
       const response = await updateProduct(data);
-      console.log("response", response);
       enqueueSnackbar(response.message, {
         variant: response.success ? "success" : "error",
       });

@@ -36,6 +36,7 @@ import Category from "./Inventory/Category";
 import Collections from "./Inventory/Collections";
 import Featured from "./Inventory/Featured";
 import OrderDetails from "./Orders/OrderDetails";
+import Qna from "./qna";
 
 const useStyles = makeStyles({
   root: {
@@ -245,6 +246,14 @@ function App(props) {
                       className={classes.tab}
                     />
                     <Tab
+                      label="Help & QNA"
+                      value="/dashboard/qna"
+                      component={Link}
+                      to="/dashboard/qna"
+                      disableRipple
+                      className={classes.tab}
+                    />
+                    <Tab
                       label="Settings"
                       value="/dashboard/settings"
                       component={Link}
@@ -271,6 +280,8 @@ function App(props) {
                     component={OrderDetails}
                     exact={true}
                   />
+                  <Route path="/dashboard/qna" component={Qna} />
+
                   <Route path="/dashboard/orders" component={Orders} />
                   <Route
                     path="/dashboard/home"

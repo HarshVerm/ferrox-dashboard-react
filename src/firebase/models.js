@@ -6,5 +6,6 @@ export const Models = {
     ORDERS: 'orders',
     ADMIN: 'admin',
     CATEGORIES: 'categories',
-    COLLECTIONS: 'collections'
+    COLLECTIONS: 'collections',
+    QNAS: 'qnas'
 }
