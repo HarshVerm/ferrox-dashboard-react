@@ -5,12 +5,12 @@ import { uuidv4 } from "../utils/uuid"
 
 
 
-export default async function addQna({ title, content, createdAt, updatedAt }) {
+export default async function addQna({ title, content, createdAt, updatedAt, type }) {
     const qnaId = uuidv4()
     return new Promise(async (resolve, reject) => {
         try {
             const productRef = doc(fireDb, "qnas", qnaId);
-            await setDoc(productRef, { id: qnaId, title, content, createdAt, updatedAt });
+            await setDoc(productRef, { id: qnaId, title, content, createdAt, updatedAt, type });
             return resolve({ success: true, message: 'QNA added successfully. ' })
 
         } catch (e) {

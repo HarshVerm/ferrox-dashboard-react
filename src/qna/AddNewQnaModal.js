@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, Fade, TextField, Typography } from '@material-ui/core';
+import { Backdrop, Box, Button, Fade, FormControl, FormLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSnackbar } from 'notistack';
@@ -9,20 +9,15 @@ import { CustomButton } from '../Common/CustomButton';
 import addQna from '../services/addQna';
 import editQna from '../services/editQna';
 
-function rand() {
-    return Math.round(Math.random() * 20) - 10;
-}
 
-function getModalStyle() {
-    const top = 50 + rand();
-    const left = 50 + rand();
-
-    return {
-        top: `${top}%`,
-        left: `${left}%`,
-        transform: `translate(-${top}%, -${left}%)`,
-    };
-}
+const QnaTypes = [
+    "MY STYLINGORA ACCOUNT",
+    "ITEMS & SIZES",
+    "GIFT OPTIONS",
+    "SHIPPING",
+    "PAYMENT & INVOICES",
+    "MY PURCHASES"
+]
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -55,6 +50,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
     const [qnaTitle, setQnaTitle] = useState('')
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(false)
+    const [selectedType, setSelectedType] = useState(null)
 
 
 
@@ -62,6 +58,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
         if (edit === true) {
             setQnaTitle(editContent.title)
             setContent(editContent.content)
+            setSelectedType(editContent.type)
         }
     }, [edit])
     function handleClose() {
@@ -73,9 +70,9 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
     }
 
     async function addNewQna() {
-        if (content.trim().length > 0 && qnaTitle.trim().length > 0) {
+        if (content.trim().length > 0 && qnaTitle.trim().length > 0 && selectedType) {
             if (!edit) {
-
+                console.log(selectedType)
                 add()
 
             } else {
@@ -83,7 +80,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
             }
 
         } else {
-            enqueueSnackbar('Please add enough title and content', { variant: 'warning' })
+            enqueueSnackbar('Please add enough title, content & selectedType', { variant: 'warning' })
 
         }
 
@@ -92,7 +89,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
     async function add() {
         setLoading(true)
 
-        const res = await addQna({ title: qnaTitle, content, createdAt: Date.now(), updatedAt: Date.now() })
+        const res = await addQna({ title: qnaTitle, content, createdAt: Date.now(), updatedAt: Date.now(), type: selectedType })
 
         if (res.success) {
             enqueueSnackbar(res.message, { variant: 'success' })
@@ -109,7 +106,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
     async function editThisQna() {
         setLoading(true)
 
-        const res = await editQna({ id: editContent.id, title: qnaTitle, content, createdAt: Date.now() })
+        const res = await editQna({ id: editContent.id, title: qnaTitle, content, createdAt: Date.now(), type: selectedType })
         if (res.success) {
             fetchAllQnas()
             enqueueSnackbar(res.message, { variant: 'success' })
@@ -120,6 +117,11 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
 
             setLoading(false)
         }
+    }
+
+    function handleChangeType(e) {
+        console.log(e.target.value)
+        setSelectedType(e.target.value)
     }
 
     return (
@@ -141,9 +143,12 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
                         <Typography variant="h5" className={classes.title}>
                             Add New QNA
                         </Typography>
+
+                        <FormLabel>
+                            Title
+                        </FormLabel>
                         <TextField
                             id="outlined-name"
-                            label="Title"
                             margin="normal"
                             variant="outlined"
                             fullWidth
@@ -152,7 +157,38 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
                             onChange={handleTitleChange}
                         />
 
-                        <ReactQuill theme="snow" value={content} onChange={setContent} />
+                        <FormControl
+                            variant="outlined"
+                            fullWidth
+                            style={{ margin: '14px 0' }}
+                        >
+                            <FormLabel>
+                                Select Type
+                            </FormLabel>
+                            <Select
+                                value={selectedType}
+                                labelWidth={0}
+                                inputProps={{
+                                    name: "type",
+                                    id: "outlined-type-simple",
+                                }}
+                                name="type"
+                                onChange={handleChangeType}
+                                style={{ marginTop: '8px' }}
+                            >
+                                {QnaTypes.map((type) => {
+                                    return (
+                                        <MenuItem key={type} value={type}>{type}</MenuItem>
+
+                                    )
+                                })}
+                            </Select>
+                        </FormControl>
+
+                        <FormLabel>
+                            Content
+                        </FormLabel>
+                        <ReactQuill style={{ marginTop: '8px' }} theme="snow" value={content} onChange={setContent} />
 
                         <Box
                             display="flex"

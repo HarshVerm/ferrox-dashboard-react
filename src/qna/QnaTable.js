@@ -33,6 +33,9 @@ export default function QnaTable({ handleEdit, qnas, fetchAllQnas, loading }) {
                     <TableRow>
                         <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
                         <TableCell style={{ fontWeight: "bold" }}>
+                            Type
+                        </TableCell>
+                        <TableCell style={{ fontWeight: "bold" }}>
                             Created On
                         </TableCell>
                         <TableCell style={{ fontWeight: "bold" }}>Enabled</TableCell>
@@ -52,6 +55,7 @@ export default function QnaTable({ handleEdit, qnas, fetchAllQnas, loading }) {
                             .map((qna, _index) => (
                                 <TableRow key={qna.id}>
                                     <TableCell>{qna.title}</TableCell>
+                                    <TableCell>{qna.type}</TableCell>
                                     <TableCell>{unix(qna.createdAt / 1000).format("MM/DD/YYYY")}</TableCell>
 
                                     <TableCell>
