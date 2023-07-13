@@ -89,7 +89,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
     async function add() {
         setLoading(true)
 
-        const res = await addQna({ title: qnaTitle, content, createdAt: Date.now(), updatedAt: Date.now(), type: selectedType })
+        const res = await addQna({ title: qnaTitle, content, createdAt: Date.now(), updatedAt: Date.now(), type: selectedType, link: qnaTitle.toLowerCase().split(" ").join("-") })
 
         if (res.success) {
             enqueueSnackbar(res.message, { variant: 'success' })
@@ -106,7 +106,7 @@ export default function AddNewQnaModal({ open, setOpen, edit, editContent, handl
     async function editThisQna() {
         setLoading(true)
 
-        const res = await editQna({ id: editContent.id, title: qnaTitle, content, createdAt: Date.now(), type: selectedType })
+        const res = await editQna({ id: editContent.id, title: qnaTitle, link: qnaTitle.toLowerCase().split(" ").join("-"), content, createdAt: Date.now(), type: selectedType })
         if (res.success) {
             fetchAllQnas()
             enqueueSnackbar(res.message, { variant: 'success' })

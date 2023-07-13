@@ -62,7 +62,8 @@ export default function CreateProductForm(props) {
     categoryId: "",
     collectionId: "",
     isFeatured: false,
-    isFeaturedId: null
+    isFeaturedId: null,
+    color: "No Color"
 
   });
 
@@ -137,7 +138,7 @@ export default function CreateProductForm(props) {
     }
   }
 
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState(1);
   const steps = getSteps();
 
   const handleNext = () => {
@@ -171,6 +172,7 @@ export default function CreateProductForm(props) {
         collection: product.collection,
         collectionId: product.collectionId,
         title: product.title,
+        color: product.color !== 'No Color' ? [product.color] : null,
         mrpPrice: { currency: product.currency, value: product.mrpPrice },
         sellingPrice: { currency: product.currency, value: product.sellingPrice },
         description: product.description,

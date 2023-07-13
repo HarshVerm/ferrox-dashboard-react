@@ -29,6 +29,7 @@ import Settings from "./Settings/Settings";
 import Board from "./Board/Board";
 import Login from "./Login/Login";
 import Team from "./Team/Team";
+import AddNewProductPage from './Inventory/AddNewProduct'
 import PrivateRoute from "./Common/PrivateRoute";
 import getAvatar from "./Common/AnimalAvatars";
 import "./App.css";
@@ -271,6 +272,7 @@ function App(props) {
                     render={() => <div>Inventory Wizard</div>}
                   />
                   <Route path="/dashboard/products" component={Inventory} />
+                  <Route path="/dashboard/add-new-product" component={AddNewProductPage} exact={true}/>
                   <Route path="/dashboard/category" component={Category} />
                   <Route path="/dashboard/collection" component={Collections} />
                   <Route path="/dashboard/featured" component={Featured} />
