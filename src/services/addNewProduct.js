@@ -20,14 +20,14 @@ export default async function addNewProducts(product) {
                 //NOTE: in case of file path is provided, uncomment this and pass data
                 // const data = readFileSync(set)
 
-                return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension, 'IMAGE')
+                return imageUploader(set.data, `${productId}-showcase-${variation.color.label.toLowerCase()}-${_set_index + 1}`, set.extension, 'IMAGE')
             })
 
             const productUrls = variation.product.map(async (set, _set_index) => {
                 //NOTE: in case of file path is provided, uncomment this and pass data
                 // const data = readFileSync(set)
 
-                return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension, 'IMAGE')
+                return imageUploader(set.data, `${productId}-product-${variation.color.label.toLowerCase()}-${_set_index + 1}`, set.extension, 'IMAGE')
             })
 
             const showcaseImages = await Promise.all([...showcaseUrls]).then((data) => {
@@ -37,6 +37,8 @@ export default async function addNewProducts(product) {
             const productImages = await Promise.all([...productUrls]).then((data) => {
                 return data
             })
+
+            console.log(showcaseImages, productImages)
 
             variants.push({
                 color: variation.color,

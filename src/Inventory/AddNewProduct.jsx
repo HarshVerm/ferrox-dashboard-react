@@ -307,7 +307,7 @@ export default function AddNewProductPage() {
             return {
                 color: vari.color,
                 showcase: Object.keys(vari.showcase).map((item) => { return vari.showcase[item].data !== null ? vari.showcase[item] : null }).filter((item) => item !== null),
-                product: Object.keys(vari.product).map((item) => { return vari.showcase[item].data !== null ? vari.showcase[item] : null }).filter((item) => item !== null)
+                product: Object.keys(vari.product).map((item) => { return vari.product[item].data !== null ? vari.product[item] : null }).filter((item) => item !== null)
 
             }
         })
