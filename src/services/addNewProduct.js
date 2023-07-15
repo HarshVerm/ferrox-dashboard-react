@@ -1,5 +1,4 @@
 import { doc, setDoc } from "firebase/firestore"
-import { readFileSync } from "fs"
 import { fireDb } from "../firebase/client"
 import { uuidv4 } from "../utils/uuid"
 import imageUploader from "./imageUploader"
@@ -8,25 +7,53 @@ import imageUploader from "./imageUploader"
 
 
 export default async function addNewProducts(product) {
-    const { images: selectedImages } = product
+    const { variations } = product
     const productId = uuidv4()
 
-    const imageUrls = selectedImages.map(async (set, _set_index) => {
-        //NOTE: in case of file path is provided, uncomment this and pass data
-        // const data = readFileSync(set)
+    let variants = []
 
-        return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension, 'IMAGE')
-    })
+    try {
+        for (let i = 0; i < variations.length; i++) {
+
+            const variation = variations[i]
+            const showcaseUrls = variation.showcase.map(async (set, _set_index) => {
+                //NOTE: in case of file path is provided, uncomment this and pass data
+                // const data = readFileSync(set)
+
+                return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension, 'IMAGE')
+            })
+
+            const productUrls = variation.product.map(async (set, _set_index) => {
+                //NOTE: in case of file path is provided, uncomment this and pass data
+                // const data = readFileSync(set)
+
+                return imageUploader(set.data, `${productId}-${_set_index + 1}`, set.extension, 'IMAGE')
+            })
+
+            const showcaseImages = await Promise.all([...showcaseUrls]).then((data) => {
+                return data
+            })
+
+            const productImages = await Promise.all([...productUrls]).then((data) => {
+                return data
+            })
+
+            variants.push({
+                color: variation.color,
+                showcase: showcaseImages,
+                product: productImages
+            })
+        }
 
 
-    return Promise.all([...imageUrls]).then(async (images) => {
-        const updatedProduct = { ...product, isFeaturedId: null, productId: productId, images: images, productPrimaryImage: images[0] || '', isFeatured: false }
+        const updatedProduct = { ...product, isFeaturedId: null, productId: productId, variations: variants, productPrimaryImage: variants[0].product[0] || '', isFeatured: false }
         const productRef = doc(fireDb, "products", productId);
         await setDoc(productRef, updatedProduct);
-    }).then(() => {
         return { success: true, message: 'Product added successfully. ' }
-    }).catch((e) => {
+    } catch (e) {
         return { success: false, message: JSON.stringify(e) }
 
-    })
+    }
+
+
 }

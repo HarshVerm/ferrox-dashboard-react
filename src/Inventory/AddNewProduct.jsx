@@ -8,6 +8,9 @@ import "./Form/styles.css";
 import CancelIcon from "@material-ui/icons/Cancel";
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import AddIcon from "@material-ui/icons/Add";
+import addNewProducts from '../services/addNewProduct'
+import { useSnackbar } from 'notistack'
+import { useHistory, useLocation } from 'react-router-dom'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -57,6 +60,8 @@ const Colors = [
 export default function AddNewProductPage() {
 
     const classes = useStyles()
+    const { enqueueSnackbar } = useSnackbar()
+    const { push } = useHistory()
 
     const inputLabel = React.useRef(null);
     const [openVariationSelect, setOpenVariationSelect] = useState(false)
@@ -293,6 +298,55 @@ export default function AddNewProductPage() {
         newVariations.splice(index, 1)
         setVariation([...newVariations])
     }
+
+
+    const handleAddProduct = async () => {
+        setLoading(true);
+
+        const mappedVariation = variation.map((vari) => {
+            return {
+                color: vari.color,
+                showcase: Object.keys(vari.showcase).map((item) => { return vari.showcase[item].data !== null ? vari.showcase[item] : null }).filter((item) => item !== null),
+                product: Object.keys(vari.product).map((item) => { return vari.showcase[item].data !== null ? vari.showcase[item] : null }).filter((item) => item !== null)
+
+            }
+        })
+
+        if (mappedVariation.length) {
+            let data = {
+                variations: mappedVariation,
+                categoryId: product.categoryId,
+                category: product.category,
+                collection: product.collection,
+                collectionId: product.collectionId,
+                title: product.title,
+                mrpPrice: { currency: product.currency, value: product.mrpPrice },
+                sellingPrice: { currency: product.currency, value: product.sellingPrice },
+                description: product.description,
+                inStock: stock,
+                highlights: product.highlights,
+                returnAndExchange: {
+                    accepted: product.returnAndExchange,
+                    message: "Hassle-free returns and exchanges.",
+                    window: "30 days",
+                    windowMessage: "Return or exchange within 30 days of purchase.",
+                },
+            };
+            const response = await addNewProducts(data);
+            enqueueSnackbar(response.message, {
+                variant: response.success ? "success" : "error",
+            });
+            if (response.success) {
+                push('/dashboard/products')
+            }
+        } else {
+            enqueueSnackbar("Add atleast 3 images", {
+                variant: "error",
+            });
+        }
+        setLoading(false);
+    };
+
 
 
     const listedColors = variation.map(vari => { return vari.color });
@@ -832,8 +886,16 @@ export default function AddNewProductPage() {
                             </Button>
                         </Grid>
 
+                        <Grid item md={12} lg={12}>
+                            <Button disabled={loading} variant="contained" color="primary" size="large" onClick={handleAddProduct}>
+                                Add
+                            </Button>
+                        </Grid>
+
 
                     </Grid>
+
+
                 </Card>
             </Container>
         </React.Fragment>

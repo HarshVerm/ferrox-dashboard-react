@@ -166,7 +166,7 @@ export default function CreateProductForm(props) {
 
     if (filterImages.length > 2) {
       let data = {
-        images: filterImages,
+        variation: filterImages,
         categoryId: product.categoryId,
         category: product.category,
         collection: product.collection,
