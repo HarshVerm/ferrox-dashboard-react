@@ -272,7 +272,7 @@ function App(props) {
                     render={() => <div>Inventory Wizard</div>}
                   />
                   <Route path="/dashboard/products" component={Inventory} />
-                  <Route path="/dashboard/add-new-product" component={AddNewProductPage} exact={true}/>
+                  <Route path="/dashboard/add-new-product" component={AddNewProductPage} exact />
                   <Route path="/dashboard/category" component={Category} />
                   <Route path="/dashboard/collection" component={Collections} />
                   <Route path="/dashboard/featured" component={Featured} />
