@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import addNewCategory from "../services/addCategory";
 import { enqueueSnackbar } from "notistack";
 import { CustomButton } from "../Common/CustomButton";
+import { uuidv4 } from "../utils/uuid";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -44,10 +45,12 @@ export default function AddCategory(props) {
   const classes = useStyles();
   const { edit, category, handleUpdate, getCategoryList } = props;
   const [categoryData, setCategoryData] = useState({
+    id: uuidv4(),
     title: "",
     description: "",
     link: "",
   });
+  const [subCategories, setSubCategories] = useState({})
   const [loading, setLoading] = useState(false);
 
   const handleChangeCategoryTitle = (event) => {
@@ -62,13 +65,25 @@ export default function AddCategory(props) {
     }
   };
 
+  function isSubCategoriesOk() {
+    if (Object.keys(subCategories).length === 0) {
+      return { category: categoryData, subCategories: [] }
+    } else {
+      const cats = []
+      Object.keys(subCategories).forEach((cat) => {
+        if (subCategories[cat].title && subCategories[cat].title.trim().length !== 0) {
+          cats.push({ ...subCategories[cat], parentCatId: categoryData.id, parentCatName: categoryData.title })
+        }
+      })
+      return { category: categoryData, subCategories: cats }
+    }
+  }
+
   const addCategory = async () => {
     setLoading(true);
     if (categoryData.title.length > 2) {
-      const response = await addNewCategory({
-        ...categoryData,
-        link: categoryData.title.split(" ").join("-"),
-      });
+      const catData = isSubCategoriesOk()
+      const response = await addNewCategory({ ...catData, category: { ...catData.category, link: categoryData.title.split(" ").join("-"), enabled: true } });
       enqueueSnackbar(response.message, {
         variant: response.success ? "success" : "error",
       });
@@ -106,6 +121,18 @@ export default function AddCategory(props) {
     }
   }, [edit]);
 
+  function addSubCategory() {
+    const newArr = { ...subCategories, [uuidv4()]: { title: '', id: uuidv4() } }
+    setSubCategories(newArr)
+  }
+
+  function handleChangeSubcat(e) {
+    const catObj = subCategories[e.target.name]
+    const newCats = { ...subCategories, [e.target.name]: { ...catObj, title: e.target.value } }
+    setSubCategories(newCats)
+  }
+
+
   return (
     <div style={{ maxWidth: "80vw", minWidth: "400px" }}>
       <Typography variant="h5" className={classes.title}>
@@ -131,6 +158,27 @@ export default function AddCategory(props) {
         name="category"
         onChange={handleChangeCategoryDescription}
       />
+      {Object.keys(subCategories).map((key) => {
+        return (
+          <TextField
+            key={key}
+            id="outlined-name"
+            label={`cat-${key}`}
+            margin="normal"
+            variant="outlined"
+            fullWidth
+            value={subCategories[key].title}
+            name={key}
+            onChange={handleChangeSubcat}
+          />
+        )
+      })}
+
+      <Button variant="outlined" onClick={addSubCategory}>
+        Add Subcategory
+      </Button>
+
+
       <Box
         display="flex"
         justifyContent="flex-end"

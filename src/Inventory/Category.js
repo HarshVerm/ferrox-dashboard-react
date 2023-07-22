@@ -25,6 +25,8 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
+  Typography,
 } from "@material-ui/core";
 import { getAllCategories } from "../services/getCategories";
 import updateCategory from "../services/updateCategory";
@@ -32,6 +34,9 @@ import { enqueueSnackbar } from "notistack";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import deleteCategory from "../services/deleteCategory";
+import { uuidv4 } from "../utils/uuid";
+import { CustomButton } from "../Common/CustomButton";
+import addSubCategory from "../services/addSubcategory";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -103,12 +108,15 @@ const Category = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const [addCategoryModal, setAddCategoryModal] = React.useState(false);
+  const [openSubCategoryModal, setOpenSubCategoryModal] = useState(false)
   const [categoryList, setCategoryList] = useState([]);
   const [edit, setEdit] = useState(false);
   const [editableCategory, setEditableCategory] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [loading, setLoading] = useState(false);
+
+  const [subCategory, setSubCategory] = useState({})
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -181,6 +189,34 @@ const Category = (props) => {
     getCategoryList();
   }, []);
 
+  function handleOpenSubCategory(catId, catName) {
+    setOpenSubCategoryModal(true)
+    setSubCategory({ id: uuidv4(), parentCatId: catId, parentCatName: catName, title: "" })
+  }
+
+  function handleCloseSubCategory() {
+    setOpenSubCategoryModal(false)
+    setSubCategory({})
+  }
+
+  async function handleAddSubCat() {
+    if (subCategory.title.trim().length !== 0) {
+      setLoading(true)
+      const res = await addSubCategory(subCategory)
+      if (res.success) {
+        enqueueSnackbar(res.message, { variant: 'success' })
+      } else {
+        enqueueSnackbar(res.message, { variant: 'errpr' })
+
+      }
+      setLoading(false)
+      handleCloseSubCategory()
+    } else {
+      enqueueSnackbar("Please provide the valid name", { variant: 'error' })
+    }
+  }
+
+
   const transitionDuration = {
     enter: theme.transitions.duration.enteringScreen,
     exit: theme.transitions.duration.leavingScreen,
@@ -252,6 +288,9 @@ const Category = (props) => {
                         </TableCell>
                         <TableCell>
                           <Box style={{ display: "flex" }}>
+                            <Button color="primary" variant="outlined" onClick={() => handleOpenSubCategory(category.id, category.title)}>
+                              Subcategory +
+                            </Button>
                             <IconButton onClick={() => handleEdit(category)}>
                               <EditIcon />
                             </IconButton>
@@ -299,6 +338,36 @@ const Category = (props) => {
         </Fab>
       </Zoom>
 
+      <Modal
+        disableAutoFocus={true}
+        className={classes.modal}
+        open={openSubCategoryModal}
+        onClose={handleCloseSubCategory}
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+        closeAfterTransition
+        disableBackdropClick
+      >
+        <Fade in={openSubCategoryModal}>
+          <div className={classes.paper} style={{ maxWidth: "80vw", minWidth: "400px", display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="subtitle1" >
+              Add Sub Category of {subCategory.parentCatName}
+            </Typography>
+
+            <TextField variant="outlined" placeholder="Sub category name" value={subCategory.title} onChange={(e) => setSubCategory({ ...subCategory, title: e.target.value })} style={{ marginTop: 3 }} />
+
+            <Box style={{ display: 'flex', flexDirection: 'row', marginTop: "24px" }}>
+              <Button variant="outlined" onClick={handleCloseSubCategory} style={{ marginRight: '18px' }}>
+                Cancel
+              </Button>
+              <CustomButton label="Add" loading={loading} variant="contained" onClick={handleAddSubCat} />
+            </Box>
+
+          </div>
+        </Fade>
+      </Modal>
       {/* Category Modal */}
       <Modal
         disableAutoFocus={true}
