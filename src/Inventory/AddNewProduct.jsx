@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, ButtonGroup, Card, Checkbox, Container, Fade, FormControl, FormControlLabel, Grid, IconButton, InputLabel, makeStyles, MenuItem, Modal, Select, TextField, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, ButtonGroup, Card, Checkbox, Container, Fade, FormControl, FormControlLabel, Grid, IconButton, InputLabel, makeStyles, MenuItem, Modal, Select, Tab, Tabs, TextField, Typography } from '@material-ui/core'
 import React, { useCallback, useState } from 'react'
 import PageTitle from '../Common/PageTitle'
 import { getAllCategories } from '../services/getCategories'
@@ -56,6 +56,26 @@ const Colors = [
     { label: "PINK", value: "#E46EB5" }
 ]
 
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box py={3}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
 
 export default function AddNewProductPage() {
 
@@ -69,6 +89,13 @@ export default function AddNewProductPage() {
     const [labelWidth, setLabelWidth] = React.useState(0);
     const [collections, setCollections] = useState([])
     const [categories, setCategories] = useState([])
+
+    const [sizeTabValue, setSizeTabValue] = useState(0);
+
+    const handleSizeTabChange = (event, newValue) => {
+        setSizeTabValue(newValue);
+    };
+
 
     const [product, setProduct] = React.useState({
         title: "",
@@ -140,6 +167,8 @@ export default function AddNewProductPage() {
         XL: 0,
         XXL: 0,
     });
+
+    const [availableSingleStock, setAvailableSingleStock] = useState(0)
 
     const [loading, setLoading] = useState(false);
 
@@ -303,14 +332,16 @@ export default function AddNewProductPage() {
     const handleAddProduct = async () => {
         setLoading(true);
 
+
         const mappedVariation = variation.map((vari) => {
             return {
-                color: vari.color,
+                color: vari.color.value === undefined ? { label: 'No Variant', value: 0 } : vari.color,
                 showcase: Object.keys(vari.showcase).map((item) => { return vari.showcase[item].data !== null ? vari.showcase[item] : null }).filter((item) => item !== null),
                 product: Object.keys(vari.product).map((item) => { return vari.product[item].data !== null ? vari.product[item] : null }).filter((item) => item !== null)
 
             }
         })
+
 
         if (mappedVariation.length) {
             let data = {
@@ -323,7 +354,7 @@ export default function AddNewProductPage() {
                 mrpPrice: { currency: product.currency, value: product.mrpPrice },
                 sellingPrice: { currency: product.currency, value: product.sellingPrice },
                 description: product.description,
-                inStock: stock,
+                ...(sizeTabValue === 0 ? { inStock: stock } : { singleStock: availableSingleStock }),
                 highlights: product.highlights,
                 returnAndExchange: {
                     accepted: product.returnAndExchange,
@@ -333,6 +364,7 @@ export default function AddNewProductPage() {
                 },
             };
             const response = await addNewProducts(data);
+            console.log(response)
             enqueueSnackbar(response.message, {
                 variant: response.success ? "success" : "error",
             });
@@ -603,112 +635,149 @@ export default function AddNewProductPage() {
                             </Grid>
                             <Grid item xs={12}>
                                 <Typography variant="h6" style={{ marginBottom: ".5em" }}>
-                                    Available Sizes
+                                    Available Stock
                                 </Typography>
-                                <Grid item container xs={12} sm={12} md={12} lg={12} spacing={2}>
-                                    <Grid item xs={3} sm={3} md={3} lg={3}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="XS"
-                                            value={stock.XS}
-                                            onChange={handleChangeStock}
-                                            className={classes.textField}
-                                            margin="normal"
-                                            variant="outlined"
-                                            style={{ marginTop: 0 }}
-                                            type="number"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                            name="XS"
-                                        />
+                                <Tabs
+                                    value={sizeTabValue}
+                                    indicatorColor="primary"
+                                    textColor="primary"
+                                    onChange={handleSizeTabChange}
+                                    aria-label="disabled tabs example"
+                                >
+                                    <Tab label="All Sizes" />
+                                    <Tab label="Single Stock" />
+
+                                </Tabs>
+
+                                <TabPanel value={sizeTabValue} index={0}>
+                                    <Grid item container xs={12} sm={12} md={12} lg={12} spacing={2}>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="XS"
+                                                value={stock.XS}
+                                                onChange={handleChangeStock}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="XS"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="SM"
+                                                value={stock.S}
+                                                onChange={handleChangeStock}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="S"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="MD"
+                                                value={stock.M}
+                                                onChange={handleChangeStock}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="M"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="LG"
+                                                value={stock.L}
+                                                onChange={handleChangeStock}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="L"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="XL"
+                                                value={stock.XL}
+                                                onChange={handleChangeStock}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="XL"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="XXL"
+                                                value={stock.XXL}
+                                                onChange={handleChangeStock}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="XXL"
+                                            />
+                                        </Grid>
                                     </Grid>
-                                    <Grid item xs={3} sm={3} md={3} lg={3}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="SM"
-                                            value={stock.S}
-                                            onChange={handleChangeStock}
-                                            className={classes.textField}
-                                            margin="normal"
-                                            variant="outlined"
-                                            style={{ marginTop: 0 }}
-                                            type="number"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                            name="S"
-                                        />
+                                </TabPanel>
+                                <TabPanel value={sizeTabValue} index={1}>
+                                    <Grid item container xs={12} sm={12} md={12} lg={12} spacing={2}>
+                                        <Grid item xs={3} sm={3} md={3} lg={3}>
+                                            <TextField
+                                                id="outlined-multiline-static"
+                                                label="In Stock"
+                                                value={availableSingleStock}
+                                                onChange={(e) => setAvailableSingleStock(e.target.value)}
+                                                className={classes.textField}
+                                                margin="normal"
+                                                variant="outlined"
+                                                style={{ marginTop: 0 }}
+                                                type="number"
+                                                InputProps={{
+                                                    inputProps: { min: 0 },
+                                                }}
+                                                name="In Stock"
+                                            />
+                                        </Grid>
                                     </Grid>
-                                    <Grid item xs={3} sm={3} md={3} lg={3}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="MD"
-                                            value={stock.M}
-                                            onChange={handleChangeStock}
-                                            className={classes.textField}
-                                            margin="normal"
-                                            variant="outlined"
-                                            style={{ marginTop: 0 }}
-                                            type="number"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                            name="M"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={3} sm={3} md={3} lg={3}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="LG"
-                                            value={stock.L}
-                                            onChange={handleChangeStock}
-                                            className={classes.textField}
-                                            margin="normal"
-                                            variant="outlined"
-                                            style={{ marginTop: 0 }}
-                                            type="number"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                            name="L"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={3} sm={3} md={3} lg={3}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="XL"
-                                            value={stock.XL}
-                                            onChange={handleChangeStock}
-                                            className={classes.textField}
-                                            margin="normal"
-                                            variant="outlined"
-                                            style={{ marginTop: 0 }}
-                                            type="number"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                            name="XL"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={3} sm={3} md={3} lg={3}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="XXL"
-                                            value={stock.XXL}
-                                            onChange={handleChangeStock}
-                                            className={classes.textField}
-                                            margin="normal"
-                                            variant="outlined"
-                                            style={{ marginTop: 0 }}
-                                            type="number"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                            name="XXL"
-                                        />
-                                    </Grid>
-                                </Grid>
+                                </TabPanel>
+
+
                             </Grid>
                             <Grid item >
                                 <FormControlLabel

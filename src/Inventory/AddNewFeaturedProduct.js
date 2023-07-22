@@ -42,12 +42,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AddNewFeaturedProduct(props) {
-  const { productId, productName ,getProductList} = props;
+  const { productId, productName, getProductList } = props;
   const classes = useStyles();
 
   const [featured, setFeaturedData] = useState({
     productId: "",
     mode: "IMAGE",
+    contrastMode: "light",
     primaryDesktopImage: {
       data: null,
       extension: null,
@@ -113,7 +114,6 @@ export default function AddNewFeaturedProduct(props) {
   const handleChangeForWeb = async (event) => {
     event.persist();
     const res = await handleFile(event);
-    console.log(res);
     if (featured.mode === "IMAGE") {
       setFeaturedData((prevState) => {
         return {
@@ -181,14 +181,14 @@ export default function AddNewFeaturedProduct(props) {
         primaryVideoMobile: featured.primaryMobileVideo,
         mode: featured.mode,
         productId: featured.productId,
+        contrastMode: featured.contrastMode
       };
 
       const res = await addLandingPageItems(data);
-      console.log(res);
       enqueueSnackbar(res.message, {
         variant: res.success ? "success" : "error",
       });
-      if(res.success){
+      if (res.success) {
         getProductList()
       }
     } else {
@@ -298,6 +298,32 @@ export default function AddNewFeaturedProduct(props) {
               </span>
             </label>
           </div>
+        </Grid>
+        <Grid item xs={3} sm={2} md={2} lg={2}>
+          <Typography variant="subtitle1" style={{ lineHeight: 3 }}>
+            Contrast Mode
+          </Typography>
+        </Grid>
+        <Grid item xs={9} sm={10} md={10} lg={10}>
+          <FormControl
+            variant="outlined"
+            className={classes.formControl}
+            fullWidth
+          >
+            <Select
+              value={featured.contrastMode}
+              labelWidth={0}
+              inputProps={{
+                name: "mode",
+                id: "outlined-mode-simple",
+              }}
+              name="contrastMode"
+              onChange={handleChange}
+            >
+              <MenuItem value="light">light</MenuItem>
+              <MenuItem value="dark">Dark</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>
       </Grid>
 

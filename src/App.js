@@ -261,7 +261,7 @@ function App(props) {
                       to="/dashboard/settings"
                       disableRipple
                       className={classes.tab}
-                    />
+                    />x
                   </Tabs>
                 </Paper>
                 <Switch>
