@@ -7,5 +7,6 @@ export const Models = {
     ADMIN: 'admin',
     CATEGORIES: 'categories',
     COLLECTIONS: 'collections',
-    QNAS: 'qnas'
+    QNAS: 'qnas',
+    SUB_CATEGORIES: 'subCategories'
 }

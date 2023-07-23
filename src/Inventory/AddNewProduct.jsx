@@ -11,6 +11,7 @@ import AddIcon from "@material-ui/icons/Add";
 import addNewProducts from '../services/addNewProduct'
 import { useSnackbar } from 'notistack'
 import { useHistory, useLocation } from 'react-router-dom'
+import { getSubCategories } from '../services/getSubcategories'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -89,6 +90,7 @@ export default function AddNewProductPage() {
     const [labelWidth, setLabelWidth] = React.useState(0);
     const [collections, setCollections] = useState([])
     const [categories, setCategories] = useState([])
+    const [subCategories, setSubCategories] = useState([])
 
     const [sizeTabValue, setSizeTabValue] = useState(0);
 
@@ -109,6 +111,8 @@ export default function AddNewProductPage() {
         returnAndExchange: false,
         categoryId: "",
         collectionId: "",
+        subCategoryId: "",
+        subCategoryName: "",
         isFeatured: false,
         isFeaturedId: null,
         color: "No Variation"
@@ -196,10 +200,25 @@ export default function AddNewProductPage() {
     }
     const handleSelectCategory = (event) => {
         event.persist();
-        const filterList = categories.filter(item => item.id === event.target.value)
+        const filterList = categories.filter(item => item.id === event.target.value)[0]
+        fetchSubCategories(filterList.id)
         setProduct((prevState) => {
-            return { ...prevState, categoryId: event.target.value, category: filterList[0].title };
+            return { ...prevState, categoryId: event.target.value, category: filterList.title };
         });
+    }
+    const handleSelectSubCategory = (event) => {
+        event.persist();
+        const subCat = subCategories.filter(item => item.id === event.target.value)[0]
+        setProduct((prevState) => {
+            return { ...prevState, subCategoryId: event.target.value, subCategoryName: subCat.title };
+        });
+    }
+
+    const fetchSubCategories = async (catId) => {
+        const res = await getSubCategories(catId)
+        if (res.success) {
+            setSubCategories(res.subCategories)
+        }
     }
 
     const handleChangeStock = (event) => {
@@ -219,7 +238,10 @@ export default function AddNewProductPage() {
 
     const getList = useCallback(async () => {
         const listOfCategory = await getAllCategories()
-        if (listOfCategory.categories) setCategories(listOfCategory.categories)
+        if (listOfCategory.categories) {
+            setCategories(listOfCategory.categories)
+            fetchSubCategories(listOfCategory.categories[0].id)
+        }
         const listOfCollections = await getAllCollections()
         if (listOfCollections.collections) setCollections(listOfCollections.collections)
     }, [])
@@ -348,6 +370,8 @@ export default function AddNewProductPage() {
                 variations: mappedVariation,
                 categoryId: product.categoryId,
                 category: product.category,
+                subCategoryId: product.subCategoryId,
+                subCategoryName: product.subCategoryName,
                 collection: product.collection,
                 collectionId: product.collectionId,
                 title: product.title,
@@ -536,6 +560,30 @@ export default function AddNewProductPage() {
                                                 <em>None</em>
                                             </MenuItem>
                                             {categories.map(category => <MenuItem key={category.id} value={category.id}>{category.title}</MenuItem>)}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                    <FormControl
+                                        variant="outlined"
+                                        className={classes.formControl}
+                                        fullWidth
+                                    >
+                                        <InputLabel ref={inputLabel} htmlFor="outlined-category-simple">
+                                            Sub Category
+                                        </InputLabel>
+                                        <Select
+                                            value={product.subCategoryId}
+                                            labelWidth={labelWidth}
+                                            inputProps={{
+                                                name: "category",
+                                                id: "outlined-category-simple",
+                                            }}
+                                            name="subCategory"
+                                            onChange={handleSelectSubCategory}
+                                        >
+
+                                            {subCategories.map(category => <MenuItem key={category.id} value={category.id}>{category.title}</MenuItem>)}
                                         </Select>
                                     </FormControl>
                                 </Grid>
