@@ -17,6 +17,7 @@ import {
   Box,
   Button,
   Card,
+  Chip,
   CircularProgress,
   Switch,
   Table,
@@ -37,6 +38,7 @@ import deleteCategory from "../services/deleteCategory";
 import { uuidv4 } from "../utils/uuid";
 import { CustomButton } from "../Common/CustomButton";
 import addSubCategory from "../services/addSubcategory";
+import { getSubCategories } from "../services/getSubcategories";
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -171,7 +173,30 @@ const Category = (props) => {
   const getCategoryList = useCallback(async () => {
     setLoading(true);
     const listOfCategory = await getAllCategories();
-    if (listOfCategory.categories) setCategoryList(listOfCategory.categories);
+    if (listOfCategory.categories) {
+
+      const subCatsPromises = listOfCategory.categories.map((cat) => {
+        return getSubCategories(cat.id)
+      })
+
+      Promise.all([...subCatsPromises]).then((data) => {
+        let allSubCats = []
+        data.forEach((d) => {
+          if (d.success) {
+            allSubCats = [...allSubCats, ...d.subCategories]
+          }
+        })
+
+        const mappedCategories = listOfCategory.categories.map((cat) => {
+          return { ...cat, subs: allSubCats.filter((subCat) => subCat.parentCatId === cat.id) }
+        })
+
+        setCategoryList(mappedCategories);
+      })
+
+
+
+    }
     setLoading(false);
   }, []);
 
@@ -258,6 +283,9 @@ const Category = (props) => {
                   <TableCell style={{ fontWeight: "bold" }}>
                     Description
                   </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>
+                    Sub Categories
+                  </TableCell>
                   <TableCell style={{ fontWeight: "bold" }}>Enabled</TableCell>
                   <TableCell style={{ fontWeight: "bold" }}></TableCell>
                 </TableRow>
@@ -277,6 +305,9 @@ const Category = (props) => {
                       <TableRow key={category.id}>
                         <TableCell>{category.title}</TableCell>
                         <TableCell>{category.description}</TableCell>
+                        <TableCell> {category.subs.map((subCat) => {
+                          return <Chip key={subCat.id} label={subCat.title} />
+                        })} </TableCell>
                         <TableCell>
                           {
                             <Switch
