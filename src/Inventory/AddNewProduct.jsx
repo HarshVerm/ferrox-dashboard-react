@@ -12,6 +12,7 @@ import addNewProducts from '../services/addNewProduct'
 import { useSnackbar } from 'notistack'
 import { useHistory, useLocation } from 'react-router-dom'
 import { getSubCategories } from '../services/getSubcategories'
+import getAllColors from '../services/getAllColors'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -46,16 +47,6 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const Colors = [
-    { label: "BEIGE", value: "#D0BE95" },
-    { label: "BLACK", value: "#000" },
-    { label: "BLUE", value: "#3472A9" },
-    { label: "GREEN", value: "#61882D" },
-    { label: "GRAY", value: "#838383" },
-    { label: "KHAKI", value: "#8A896E" },
-    { label: "NEON", value: "#E4FF3B" },
-    { label: "PINK", value: "#E46EB5" }
-]
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -91,6 +82,7 @@ export default function AddNewProductPage() {
     const [collections, setCollections] = useState([])
     const [categories, setCategories] = useState([])
     const [subCategories, setSubCategories] = useState([])
+    const [colors, setColors] = useState([])
 
     const [sizeTabValue, setSizeTabValue] = useState(0);
 
@@ -176,6 +168,10 @@ export default function AddNewProductPage() {
 
     const [loading, setLoading] = useState(false);
 
+    const getColors = async () => {
+        const { colors: allColors } = await getAllColors()
+        setColors(allColors)
+    }
 
     const handleChangeProductDetails = (event) => {
         event.persist();
@@ -188,7 +184,7 @@ export default function AddNewProductPage() {
         const newVariation = variation
         const obj = newVariation.at(_index)
         newVariation.splice(_index, 1)
-        setVariation([...newVariation, { ...obj, color: { label: vari.label, value: vari.value } }])
+        setVariation([...newVariation, { ...obj, color: { label: vari.label, value: vari.color } }])
     }
 
     const handleSelectCollection = (event) => {
@@ -249,6 +245,7 @@ export default function AddNewProductPage() {
     React.useEffect(() => {
         setLabelWidth(inputLabel.current.offsetWidth);
         getList()
+        getColors()
     }, []);
 
     const handleImageChange = (_vrIndex, index, mode, event) => {
@@ -406,7 +403,7 @@ export default function AddNewProductPage() {
 
 
     const listedColors = variation.map(vari => { return vari.color });
-    const availableColors = Colors.filter((color) => !exist(listedColors, color.value))
+    const availableColors = colors.filter((color) => !exist(listedColors, color.color))
 
     const onlySingleVariation = variation.filter((vari) => vari.color && vari.color.value === undefined)[0] !== undefined
 
@@ -867,10 +864,10 @@ export default function AddNewProductPage() {
                                                 <MenuItem value={{ label: 'No Variation', value: undefined }}>
                                                     No Variation
                                                 </MenuItem>
-                                                {Colors.map((color) => {
+                                                {colors.map((color) => {
                                                     return (
                                                         <MenuItem key={color.label} value={color} style={{ alignItems: 'center' }}>
-                                                            <div style={{ height: '10px', width: '10px', backgroundColor: color.value, marginRight: '10px' }}></div> {color.label}
+                                                            <div style={{ height: '10px', width: '10px', backgroundColor: color.color, marginRight: '10px' }}></div> {color.label}
                                                         </MenuItem>
                                                     )
                                                 })}

@@ -8,5 +8,6 @@ export const Models = {
     CATEGORIES: 'categories',
     COLLECTIONS: 'collections',
     QNAS: 'qnas',
-    SUB_CATEGORIES: 'subCategories'
+    SUB_CATEGORIES: 'subCategories',
+    COLORS : 'colors'
 }

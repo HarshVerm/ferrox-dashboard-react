@@ -38,6 +38,7 @@ import Collections from "./Inventory/Collections";
 import Featured from "./Inventory/Featured";
 import OrderDetails from "./Orders/OrderDetails";
 import Qna from "./qna";
+import ColorsPage from "./colors";
 
 const useStyles = makeStyles({
   root: {
@@ -222,6 +223,14 @@ function App(props) {
                       className={classes.tab}
                     />
                     <Tab
+                      label="Configs & Colors"
+                      value="/dashboard/configs"
+                      component={Link}
+                      to="/dashboard/configs"
+                      disableRipple
+                      className={classes.tab}
+                    />
+                    <Tab
                       label="Featured"
                       value="/dashboard/featured"
                       component={Link}
@@ -277,6 +286,7 @@ function App(props) {
                   <Route path="/dashboard/collection" component={Collections} />
                   <Route path="/dashboard/featured" component={Featured} />
                   <Route path="/dashboard/board" component={Board} />
+                  <Route path="/dashboard/configs" component={ColorsPage} />
                   <Route
                     path="/dashboard/orderDetails/:orderId"
                     component={OrderDetails}
