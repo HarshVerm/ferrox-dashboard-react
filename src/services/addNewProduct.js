@@ -2,6 +2,7 @@ import { doc, setDoc } from "firebase/firestore"
 import { fireDb } from "../firebase/client"
 import { uuidv4 } from "../utils/uuid"
 import imageUploader from "./imageUploader"
+import algoliaIndex from '../utils/getAlgoliaClient'
 
 
 
@@ -49,6 +50,7 @@ export default async function addNewProducts(product) {
         const updatedProduct = { ...product, isFeaturedId: null, productId: productId, availableColors: variants.map((v) => v.color), variations: variants, productPrimaryImage: variants[0].product[0] || '', isFeatured: false }
         const productRef = doc(fireDb, "products", productId);
         await setDoc(productRef, updatedProduct);
+        algoliaIndex.saveObject({ ...updatedProduct, objectID: uuidv4() })
         return { success: true, message: 'Product added successfully. ' }
     } catch (e) {
         return { success: false, message: JSON.stringify(e) }
