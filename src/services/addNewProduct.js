@@ -38,8 +38,6 @@ export default async function addNewProducts(product) {
                 return data
             })
 
-            console.log(showcaseImages, productImages)
-
             variants.push({
                 color: variation.color,
                 showcase: showcaseImages,
@@ -48,7 +46,7 @@ export default async function addNewProducts(product) {
         }
 
 
-        const updatedProduct = { ...product, isFeaturedId: null, productId: productId, variations: variants, productPrimaryImage: variants[0].product[0] || '', isFeatured: false }
+        const updatedProduct = { ...product, isFeaturedId: null, productId: productId, availableColors: variants.map((v) => v.color), variations: variants, productPrimaryImage: variants[0].product[0] || '', isFeatured: false }
         const productRef = doc(fireDb, "products", productId);
         await setDoc(productRef, updatedProduct);
         return { success: true, message: 'Product added successfully. ' }

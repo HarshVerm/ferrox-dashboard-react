@@ -372,8 +372,8 @@ export default function AddNewProductPage() {
                 collection: product.collection,
                 collectionId: product.collectionId,
                 title: product.title,
-                mrpPrice: { currency: product.currency, value: product.mrpPrice },
-                sellingPrice: { currency: product.currency, value: product.sellingPrice },
+                mrpPrice: { currency: product.currency, value: Number(product.mrpPrice) },
+                sellingPrice: { currency: product.currency, value: Number(product.sellingPrice) },
                 description: product.description,
                 ...(sizeTabValue === 0 ? { inStock: stock } : { singleStock: availableSingleStock }),
                 highlights: product.highlights,
@@ -385,7 +385,6 @@ export default function AddNewProductPage() {
                 },
             };
             const response = await addNewProducts(data);
-            console.log(response)
             enqueueSnackbar(response.message, {
                 variant: response.success ? "success" : "error",
             });
